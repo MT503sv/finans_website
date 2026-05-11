@@ -12,7 +12,7 @@ import {
 function SearchBar() {
   return (
     <InputGroup className="h-10 w-120 position-relative">
-      <InputGroupInput placeholder="Search..." />
+      <InputGroupInput className="text" placeholder="Search..." />
       <InputGroupAddon>
         <Search />
       </InputGroupAddon>
@@ -29,9 +29,11 @@ export default function NavbarLogged() {
       <div className="flex-1 mx-34">
         <SearchBar />
       </div>
-      <div className="flex items-center mx-35    space-x-4">
-        <Button className="h-8 w-17" variant="outline">Login</Button>
-        <Button className="h-8 w-20" variant="default">Signup</Button>
+      <div className="flex items-center mx-35 space-x-4">
+
+        <Button className="h-8 w-17" variant="outline"></Button>
+
+        {/* Here goes the Clerk Profile components */}
       </div>
     </nav>
   );
