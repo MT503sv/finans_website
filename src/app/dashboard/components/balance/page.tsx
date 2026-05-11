@@ -7,7 +7,7 @@ export default function balance() {
     "$" + n.toLocaleString("en-US");
 
   return (
-        <div className="bg-white rounded-2xl shadow-md p-10 w-full max-w-4xl font-sans">
+        <div className="bg-white rounded-2xl shadow-md p-8 w-full  font-sans">
 
             {/* Title */}
             <h2 className="text-xl font-bold text-gray-900 mb-8">Balance Sheet</h2>
