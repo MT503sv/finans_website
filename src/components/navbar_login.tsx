@@ -3,8 +3,9 @@
 import { Button } from "@/components/ui/button"
 import Image from "next/image";
 import { useState } from "react";
+import Link from "next/link"; 
 
-export default function NavbarLogged() {
+export default function NavbarLogin() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = ["Services", "Pricing", "About Us", "Contact Us"];
@@ -12,26 +13,40 @@ export default function NavbarLogged() {
     "hover:underline hover:decoration-2 hover:underline-offset-4 hover:decoration-[#010221]";
 
   return (
-    <nav>
+    <nav className="bg-white shadow-sm">
       <div className="flex items-center justify-between px-6 py-2">
-        <div className="px-4 lg:px-10">
-          <Image src="/logos/isotipo-finans.png" alt="Logo" width={42} height={42} />
+        <div className="shrink-0 flex items-center gap-3 mx-2">
+          <Image src="/logos/isotipo-finans.png" alt="Logo" width={32} height={32} />
         </div>
+
         <div className="hidden lg:flex items-center space-x-10 cursor-pointer -ml-125">
           {navLinks.map((link) => (
             <h1 key={link} className={linkClass}>{link}</h1>
           ))}
         </div>
-        <div className="flex items-center space-x-3 mx-4 lg:mx-10">
-          <Button className="hidden lg:flex h-10 w-20 bg-[#010221] text-white hover:bg-[#010221]/90 rounded-lg" variant="default">
-            Login
-          </Button>
-          <Button className="hidden lg:flex h-10 w-25 bg-[#010221] text-white hover:bg-[#010221]/90 rounded-lg" variant="default">
-            Signup
-          </Button>
-          <Button className="lg:hidden h-10 px-4 bg-[#010221] text-white hover:bg-[#010221]/90 rounded-lg text-sm font-medium" variant="default">
-            Create Account
-          </Button>
+
+        <div className="flex items-center space-x-3 mx-0">
+       
+          <Link href="/sign-in">
+            <Button className="hidden lg:flex h-10 w-25 bg-[#010221] text-white hover:bg-[#010221]/90 rounded-lg cursor-pointer" variant="default">
+              Login
+            </Button>
+          </Link>
+
+        
+          <Link href="/sign-up">
+            <Button className="hidden lg:flex h-10 w-25 bg-[#010221] text-white hover:bg-[#010221]/90 rounded-lg cursor-pointer" variant="default">
+              Signup
+            </Button>
+          </Link>
+
+       
+          <Link href="/sign-up" className="lg:hidden">
+            <Button className="h-10 px-4 bg-[#010221] text-white hover:bg-[#010221]/90 rounded-lg text-sm font-medium" variant="default">
+              Create Account
+            </Button>
+          </Link>
+
           <button
             className="lg:hidden flex flex-col justify-center items-center w-8 h-8 space-y-1.5"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -43,11 +58,16 @@ export default function NavbarLogged() {
           </button>
         </div>
       </div>
+
+
       {menuOpen && (
         <div className="lg:hidden flex flex-col items-start px-10 pb-4 space-y-4 border-t">
           {navLinks.map((link) => (
             <h1 key={link} className={`cursor-pointer ${linkClass}`}>{link}</h1>
           ))}
+          <Link href="/sign-in" className="text-sm font-medium pt-2">
+            Login
+          </Link>
         </div>
       )}
     </nav>
