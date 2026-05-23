@@ -5,7 +5,7 @@ export default function FirstBlock() {
     <div className="font-sans">
         <div>
 
-            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">
+            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-8">
                 <h1>Understand your</h1>
                 <div className="flex gap-2">
                     <h1>money.</h1>
@@ -27,16 +27,31 @@ export default function FirstBlock() {
             </div>
 
 
-            <div>
+            <div className="flex mt-8">
 
-                <div>
+                {/*Icon 1 */}
+                <div className="flex" >
+                    <div>
+                    <Image src="/homepage/Mini-icon-3.png" alt="Description of the image" width={40} height={40} />
+                    </div>
                     
+                    <div className="ml-2">
+                        <section className="">
+                            <h1 className="font-semibold">Easy to use</h1>
+                        </section>
+
+                        <section>
+                            <h2 className="text-sm">No financial knowledge needed</h2>
+                        </section>
+                    </div>
                 </div>
 
+                {/*Icon 2 */}
                 <div>
 
                 </div>
 
+                {/*Icon 3 */}
                 <div>
 
                 </div>

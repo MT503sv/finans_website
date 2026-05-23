@@ -44,8 +44,6 @@ model Outflows {
 
 model Sales {
   id                     Int      @id @default(autoincrement())
-  revenues               Float
-  outflows               Float
   item_sold              String
   quantity_of_sold_items Int
   price_of_item          Float
@@ -93,12 +91,13 @@ model Inventory {
 }
 
 model Financial_goals {
-  id             Int      @id @default(autoincrement())
-  goal_name      String
-  target_amount  Float
-  current_amount Float
-  date           DateTime @default(now())
-  user_id        Int
-  goal_type      String
-  user           User     @relation(fields: [user_id], references: [id])
+  id            Int      @id @default(autoincrement())
+  goal_name     String
+  date          DateTime @default(now())
+  user_id       Int
+  goal_type     String
+  due_date      DateTime @db.Date
+  target_amount Float?   @db.Real
+  is_completed  Boolean
+  user          User     @relation(fields: [user_id], references: [id])
 }

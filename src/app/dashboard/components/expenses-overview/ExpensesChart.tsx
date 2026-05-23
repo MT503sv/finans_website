@@ -1,76 +1,104 @@
 "use client";
 
-import { Bar, BarChart, XAxis, YAxis, Cell } from "recharts";
+import { useState } from "react";
+import { Pie, PieChart, Cell } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
-const COLORS = ["#000c44", "#204d81", "#406b8d", "#8b8dc4", "#c0c2e0"];
+const COLORS = ["#2d2f6b", "#3d3f8f", "#5a5ca8", "#8b8dc4", "#c0c2e0"];
 const chartConfig = { amount: { label: "Amount" } };
 const fmt = (n: number) => "$" + n.toLocaleString("en-US");
 
+type DataPoint = { category: string; amount: number };
+
 type Props = {
-  data: { category: string; amount: number }[];
+  monthlyData: DataPoint[];
+  weeklyData: DataPoint[];
 };
 
-export function ExpensesChart({ data }: Props) {
+export function ExpensesChart({ monthlyData, weeklyData }: Props) {
+  const [view, setView] = useState<"monthly" | "weekly">("monthly");
+
+  const data  = view === "monthly" ? monthlyData : weeklyData;
   const total = data.reduce((sum, e) => sum + e.amount, 0);
 
-  const dataWithPct = data.map(d => ({
-    ...d,
-    pct: total > 0 ? Math.round((d.amount / total) * 100) : 0,
-  }));
-
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 w-full max-w-5xl">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Expenses Details</h2>
+    <div className="bg-white rounded-2xl shadow-md p-6 w-full h-full">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base font-bold text-gray-900">Expenses Overview</h2>
 
-      <ChartContainer config={chartConfig} className="w-full" style={{ height: `${data.length * 52}px` }}>
-        <BarChart
-          data={dataWithPct}
-          layout="vertical"
-          margin={{ left: 100, right: 70, top: 4, bottom: 4 }}
-        >
-          <XAxis type="number" domain={[0, 100]} hide />
-          <YAxis
-            type="category"
-            dataKey="category"
-            axisLine={false}
-            tickLine={false}
-            tick={{ fontSize: 13, fill: "#4b5563" }}
-            width={95}
-          />
-          <ChartTooltip
-            content={<ChartTooltipContent />}
-            formatter={(value) => [`${value}%`, "Porcentaje"]}
-            cursor={{ fill: "transparent" }}
-          />
-          <Bar dataKey="pct" radius={[0, 4, 4, 0]} label={{
-            position: "insideRight",
-            formatter: (v: unknown) => `${v}%`,
-            fontSize: 11,
-            fill: "#fff",
-            fontWeight: 600,
-          }}>
-            {dataWithPct.map((_, i) => (
-              <Cell key={i} fill={COLORS[i % COLORS.length]} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ChartContainer>
+        {/* Botones */}
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setView("monthly")}
+            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              view === "monthly"
+                ? "bg-slate-900 text-white"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setView("weekly")}
+            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              view === "weekly"
+                ? "bg-slate-900 text-white"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Weekly
+          </button>
+        </div>
+      </div>
 
-      {/* Montos y total */}
-      <div className="mt-3 border-t border-gray-100 pt-2">
-        {dataWithPct.map((item, i) => (
-          <div key={i} className="flex items-center justify-between py-1.5">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-              <span className="text-sm text-gray-600">{item.category}</span>
-            </div>
-            <span className="text-sm font-medium text-gray-900">{fmt(item.amount)}</span>
+      <div className="flex flex-col sm:flex-row items-center gap-6">
+        <div className="relative w-48 h-48 shrink-0 mx-auto sm:mx-0">
+          <ChartContainer config={chartConfig} className="w-full h-full">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="amount"
+                nameKey="category"
+                innerRadius={55}
+                outerRadius={90}
+                startAngle={90}
+                endAngle={-270}
+              >
+                {data.map((_, i) => (
+                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                ))}
+              </Pie>
+              <ChartTooltip content={<ChartTooltipContent />} />
+            </PieChart>
+          </ChartContainer>
+
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span className="text-lg font-bold text-gray-900">{fmt(total)}</span>
+            <span className="text-xs text-gray-500">Total</span>
           </div>
-        ))}
-        <div className="flex justify-between pt-2 mt-1 border-t border-gray-100">
-          <span className="text-sm font-semibold text-gray-900">Total</span>
-          <span className="text-sm font-semibold text-gray-900">{fmt(total)}</span>
+        </div>
+
+        <div className="flex-1 w-full">
+          {data.length === 0 && (
+            <p className="text-sm text-gray-400 text-center py-4">
+              No expenses this {view === "monthly" ? "month" : "week"}
+            </p>
+          )}
+          {data.map((item, i) => (
+            <div key={i} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                <span className="text-sm text-gray-600">{item.category}</span>
+              </div>
+              <span className="text-sm font-medium text-gray-900">{fmt(item.amount)}</span>
+            </div>
+          ))}
+          {data.length > 0 && (
+            <div className="flex justify-between pt-2 mt-1">
+              <span className="text-sm font-semibold text-gray-900">Total</span>
+              <span className="text-sm font-semibold text-gray-900">{fmt(total)}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
