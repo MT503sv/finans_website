@@ -57,10 +57,10 @@ export default function OCRScanner({ onDataExtracted }: OCRScannerProps) {
 
   return (
     <div className="w-full max-w-xl mx-auto p-4 space-y-6">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-[#C2C9FF] overflow-hidden">
         <div className="p-8 text-center space-y-6">
-          <div className="w-20 h-20  rounded-full flex items-center justify-center mx-auto text-blue-500">
-            <Camera size={40} />
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto text-blue-500">
+            <Camera size={40} color='#CBD5E1'/>
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-800">Upload Sales Receipt</h2>
@@ -68,10 +68,10 @@ export default function OCRScanner({ onDataExtracted }: OCRScannerProps) {
           </div>
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-slate-300 rounded-2xl p-10 cursor-pointer hover:bg-slate-50 hover:border-blue-300 transition-all group"
+            className="border-2 border-dashed border-slate-300 rounded-2xl p-10 cursor-pointer hover:bg-slate-50 hover:border-[#C2C9FF] transition-all group"
           >
             <div className="flex flex-col items-center gap-2">
-              <ImageIcon size={32} className="text-slate-400 group-hover:text-blue-500 transition-colors" />
+              <ImageIcon size={32} className="text-slate-300 hover:text-[#C2C9FF]" />
               <span className="text-slate-600 font-medium">Select File</span>
               <span className="text-slate-400 text-xs mt-1 italic">JPG or PNG (max 4MB)</span>
             </div>
@@ -91,7 +91,7 @@ export default function OCRScanner({ onDataExtracted }: OCRScannerProps) {
               {loading && (
                 <div className="absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center text-white gap-3 backdrop-blur-sm">
                   <Loader2 className="animate-spin" size={48} />
-                  <p className="font-medium text-sm">Reading with Gemini 1.5 Flash...</p>
+                  <p className="font-medium text-sm">Reading with Kuali...</p>
                 </div>
               )}
             </motion.div>

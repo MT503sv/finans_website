@@ -12,7 +12,7 @@ export default function OCRPage() {
   const [records, setRecords] = useState<SaleRecord[]>([]);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8">
+    <div className="min-h-screen bg-white py-5">
       {step === 'idle' ? (
         <>
           <OCRScanner onDataExtracted={(data) => { setExtractedData(data); setStep('editing'); }} />

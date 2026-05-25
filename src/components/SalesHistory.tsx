@@ -37,7 +37,7 @@ export default function SalesHistory({ records, onDelete }: SalesHistoryProps) {
           <h3 className="text-lg font-bold text-slate-800">Recent Activity</h3>
           <p className="text-xs text-slate-400 font-medium">{records.length} records</p>
         </div>
-        <button onClick={exportToCSV} className="flex items-center gap-2 px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-bold uppercase hover:bg-white transition-all shadow-sm">
+        <button onClick={exportToCSV} className="flex items-center cursor-pointer gap-2 px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-bold uppercase hover:bg-white transition-all shadow-sm">
           <Download size={14} /> Export CSV
         </button>
       </div>
@@ -48,7 +48,7 @@ export default function SalesHistory({ records, onDelete }: SalesHistoryProps) {
           </span>
           <p className="text-3xl font-black text-slate-900 mt-2">${totalSales.toFixed(2)}</p>
         </div>
-        <div className="bg-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 flex flex-col justify-between">
+        <div className="bg-[#010221] rounded-2xl p-6 text-white shadow-lg shadow-blue-200 flex flex-col justify-between">
           <span className="text-[10px] font-bold uppercase tracking-wider text-blue-100">Transactions</span>
           <p className="text-3xl font-black mt-2">{records.length}</p>
         </div>
@@ -73,12 +73,12 @@ export default function SalesHistory({ records, onDelete }: SalesHistoryProps) {
                     <p className="text-[10px] text-slate-400 font-medium">{new Date(record.timestamp).toLocaleDateString('en-US')}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-black uppercase tracking-tighter">{record.category}</span>
+                    <span className="px-2 py-0.5 bg-blue-50 text-[#010221] rounded text-[10px] font-black uppercase tracking-tighter">{record.category}</span>
                   </td>
                   <td className="px-6 py-4 text-slate-500 font-medium">{record.quantity}</td>
                   <td className="px-6 py-4 text-right font-black text-slate-900">${(record.price * record.quantity).toFixed(2)}</td>
                   <td className="px-6 py-4 text-right">
-                    <button onClick={() => onDelete(record.id)} className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-all opacity-0 group-hover:opacity-100">
+                    <button onClick={() => onDelete(record.id)} className="p-1.5 text-slate-300 hover:text-red-500 cursor-pointer hover:bg-red-50 rounded transition-all opacity-0 group-hover:opacity-100">
                       <Trash2 size={16} />
                     </button>
                   </td>
