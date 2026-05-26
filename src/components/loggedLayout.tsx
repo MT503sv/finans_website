@@ -1,37 +1,57 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useRef, useCallback, memo } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import NavbarLogged from "@/components/navbar_logged"
 
+const MemoSidebar = memo(AppSidebar)
+const MemoNavbar = memo(NavbarLogged)
+
 export default function LoggedLayout({ children }: { children: React.ReactNode }) {
   const [pinned, setPinned] = useState(true)
   const [open, setOpen] = useState(true)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isClosing = useRef(false)
 
-  const handleMouseEnter = () => { if (!pinned) setOpen(true) }
-  const handleMouseLeave = () => { if (!pinned) setOpen(false) }
-  const handlePin = () => {
+  const handleMouseEnter = useCallback(() => {
+    if (!pinned && !isClosing.current) {
+      if (closeTimer.current) clearTimeout(closeTimer.current)
+      setOpen(true)
+    }
+  }, [pinned])
+
+  const handleMouseLeave = useCallback(() => {
+    if (!pinned) {
+      closeTimer.current = setTimeout(() => setOpen(false), 300)
+    }
+  }, [pinned])
+
+  const handlePin = useCallback(() => {
     setPinned(prev => {
       const next = !prev
-      if (!next) setOpen(false)
+      if (!next) {
+        isClosing.current = true
+        if (closeTimer.current) clearTimeout(closeTimer.current)
+        setOpen(false)
+        setTimeout(() => { isClosing.current = false }, 600)
+      } else {
+        setOpen(true)
+      }
       return next
     })
-  }
+  }, [])
 
   return (
     <SidebarProvider open={open} onOpenChange={setOpen}>
-      <AppSidebar
+      <MemoSidebar
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onPin={handlePin}
         pinned={pinned}
       />
       <SidebarInset>
-        <NavbarLogged
-          sidebarOpen={open}
-          onLogoHover={() => { if (!pinned) setOpen(true) }}
-        />
+        <MemoNavbar />
         <main className="flex-1 p-0">{children}</main>
       </SidebarInset>
     </SidebarProvider>

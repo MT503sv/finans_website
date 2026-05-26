@@ -72,11 +72,8 @@ export default async function Data() {
         <h1 className="text-4xl font-semibold">Dashboard</h1>
       </div>
       
-      <div className="mt-4 text-lg">
-        <h2>Here's your financial summary</h2>
-      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
 
         
         <div className="bg-white shadow-lg rounded-lg p-5">

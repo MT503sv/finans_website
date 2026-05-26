@@ -13,6 +13,9 @@ export default function OCRPage() {
 
   return (
     <div className="min-h-screen bg-white py-5">
+      <div className="mt-1 mb-5">
+        <h1 className="text-4xl font-semibold mx-5">Scanner</h1>
+      </div>
       {step === 'idle' ? (
         <>
           <OCRScanner onDataExtracted={(data) => { setExtractedData(data); setStep('editing'); }} />
