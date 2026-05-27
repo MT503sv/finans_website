@@ -1,4 +1,4 @@
-import Debts from "@/components/debts";
+import Debts from "./component/debts";
 
 export default function DebtsPage() {
   return <Debts />;
