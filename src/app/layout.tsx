@@ -4,20 +4,15 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
-import NavbarWrapper from "@/components/NavbarWrapper"; 
-
-import { AppSidebar } from "@/components/app-sidebar"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"  
+import NavbarWrapper from "@/components/NavbarWrapper";
+import LoggedLayout from "@/components/loggedLayout"
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Finans - Financial Management", 
+  title: "Finans - Financial Management",
   description: "Digital financial management solution tailored for MYPEs in El Salvador.",
 };
 
@@ -34,35 +29,23 @@ export default async function RootLayout({
       <html
         lang="en"
         className={cn(
-          "h-full antialiased", 
-          geistSans.variable, 
-          geistMono.variable, 
+          "h-full antialiased",
+          geistSans.variable,
+          geistMono.variable,
           inter.variable,
           "font-sans"
         )}
       >
         <body className="min-h-full">
-          
+
           {!isLogged ? (
             <div className="flex flex-col min-h-screen">
               <NavbarWrapper userId={userId} />
-              <main className="flex-1">
-                {children}
-              </main>
+              <main className="flex-1">{children}</main>
             </div>
           ) : (
 
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset>
-
-                <NavbarWrapper userId={userId} />
-                
-                <main className="flex-1 p-4 md:p-6">
-                  {children}
-                </main>
-              </SidebarInset>
-            </SidebarProvider>
+            <LoggedLayout>{children}</LoggedLayout>
           )}
 
         </body>

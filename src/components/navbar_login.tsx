@@ -3,20 +3,28 @@
 import { Button } from "@/components/ui/button"
 import Image from "next/image";
 import { useState } from "react";
-import Link from "next/link"; 
+import Link from "next/link";
 
 export default function NavbarLogin() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navLinks = ["Services", "Pricing", "About Us", "Contact Us"];
+  const navLinks = ["Services", "Pricing", "About Us", "FQAs"];
   const linkClass =
     "hover:underline hover:decoration-2 hover:underline-offset-4 hover:decoration-[#010221]";
 
   return (
     <nav className="bg-white shadow-sm">
-      <div className="flex items-center justify-between px-6 py-2">
-        <div className="shrink-0 flex items-center gap-3 mx-2">
-          <Image src="/logos/isotipo-finans.png" alt="Logo" width={32} height={32} />
+      <div className="flex items-center justify-between px-6">
+        <div className="shrink-0 flex items-center gap-3 mx-2 mb-1">
+          <Link href="/" className="relative h-20 w-30 block">
+            <Image
+              src="/logos/finans-imagotipo-2.png"
+              alt="Finans Logo"
+              fill
+              priority
+              className="object-contain"
+            />
+          </Link>
         </div>
 
         <div className="hidden lg:flex items-center space-x-10 cursor-pointer -ml-125">
@@ -26,21 +34,21 @@ export default function NavbarLogin() {
         </div>
 
         <div className="flex items-center space-x-3 mx-0">
-       
+
           <Link href="/sign-in">
             <Button className="hidden lg:flex h-10 w-25 bg-[#010221] text-white hover:bg-[#010221]/90 rounded-lg cursor-pointer" variant="default">
               Login
             </Button>
           </Link>
 
-        
+
           <Link href="/sign-up">
             <Button className="hidden lg:flex h-10 w-25 bg-[#010221] text-white hover:bg-[#010221]/90 rounded-lg cursor-pointer" variant="default">
               Signup
             </Button>
           </Link>
 
-       
+
           <Link href="/sign-up" className="lg:hidden">
             <Button className="h-10 px-4 bg-[#010221] text-white hover:bg-[#010221]/90 rounded-lg text-sm font-medium" variant="default">
               Create Account

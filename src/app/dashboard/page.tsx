@@ -1,12 +1,31 @@
-export default function DashboardPage() {
+import Data from "./components/data/page";
+import Goals from "./components/goals/page";
+import ExpensesOverview from "./components/expenses-overview/page";
+import Incomes from "./components/incomes/page";
+
+
+export default function Dashboard() {
   return (
-    <div className="flex flex-1 flex-col gap-4">
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <div className="aspect-video rounded-xl bg-muted/50" />
-        <div className="aspect-video rounded-xl bg-muted/50" />
-        <div className="aspect-video rounded-xl bg-muted/50" />
+    <main className="min-h-screen bg-white text-black p-5 space-y-15 ">
+
+      <div>
+        <Data />
       </div>
-      <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-    </div>
-  )
+        
+      <div className="grid grid-cols-1 md:flex gap-15 ">
+        <div className="flex-1">
+          <Goals />
+        </div>
+        
+        <div className="flex-1">
+          <ExpensesOverview />
+        </div>
+      </div>
+        
+      <div className="flex justify-center">
+        <Incomes />
+      </div>
+
+    </main>
+  );
 }
