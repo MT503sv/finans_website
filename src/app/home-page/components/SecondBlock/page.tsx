@@ -27,7 +27,7 @@ export default function SecondBlock() {
   return (
     <section className="font-sans py-16 px-4 bg-[F5F7FA]">
  
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-12">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-12">
         Everything you need to take control
       </h2>
  
@@ -35,7 +35,7 @@ export default function SecondBlock() {
         {features.map((feature) => (
           <div
             key={feature.title}
-            className="bg-white rounded-2xl p-8 flex flex-col items-center text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+            className="bg-white rounded-2xl p-8 flex flex-col items-center text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border border-gray-200"
           >
             <div className="mb-5">
               <Image src={feature.icon} alt={feature.title} width={44} height={44} />

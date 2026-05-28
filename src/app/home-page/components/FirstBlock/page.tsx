@@ -50,7 +50,7 @@ export default function FirstBlock() {
               </div>
               <div>
                 <h3 className="font-semibold text-sm">All in one place</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Income, expenses,<br />savings and more.</p>
+                <p className="text-xs text-gray-500 mt-0.5">Income, expenses, savings and more.</p>
               </div>
             </div>
 
@@ -71,7 +71,7 @@ export default function FirstBlock() {
         {/* RIGHT SIDE - Illustration */}
         <div className="w-full lg:w-auto flex justify-center lg:justify-end flex-shrink-0">
           <Image
-            src="/homepage/FirstImage.png"
+            src="/homepage/FirstImagen.png"
             alt="Financial dashboard illustration"
             width={480}
             height={400}

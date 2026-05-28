@@ -2,7 +2,7 @@ import Image from "next/image";
  
 export default function ThirdBlock() {
   return (
-    <section className="bg-gray-200 px-4 py-6 font-sans">
+    <section className="bg-gray-200 px-4 py-6 font-sans rounded-3xl">
       <div className="rounded-3xl px-6 py-12 max-w-6xl mx-auto">
  
         {/* Power by AI badge */}
