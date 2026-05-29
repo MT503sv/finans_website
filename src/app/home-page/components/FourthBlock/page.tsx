@@ -4,7 +4,7 @@ const plans = [
     highlight: false,
     label: "FREE",
     tagline: "Perfect for getting started",
-    price: "00.00",
+    price: "0",
     period: "/Month",
     features: [
       "Income & expense tracking",
@@ -89,7 +89,7 @@ export default function PricingBlock() {
               >
                 {plan.badge}
               </span>
-              {plan.golden && <span className="text-yellow-400 text-lg">💎</span>}
+              {plan.golden && <span className="text-yellow-400 text-lg"></span>}
               {!plan.golden && (
                 <span className={`text-xs ${plan.dark ? "text-white/30" : "text-gray-300"}`}>⊞</span>
               )}
