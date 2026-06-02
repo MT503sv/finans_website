@@ -1,5 +1,7 @@
-import Debts from "./component/debts";
+import { getDebts } from "./actions/debts";
+import Debts from "./component/Debts";
 
-export default function DebtsPage() {
-  return <Debts />;
+export default async function DebtsPage() {
+  const initialDebts = await getDebts();
+  return <Debts initialDebts={initialDebts} />;
 }

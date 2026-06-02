@@ -103,15 +103,14 @@ model Financial_goals {
   user          User     @relation(fields: [user_id], references: [id])
 }
 
-
 model Debts {
-  id            Int      @id @default(autoincrement())
-  debt_name     String
-  debt_bank     String
-  amount        Float
-  date          DateTime @default(now())
-  user_id       Int
-  due_date      DateTime @db.Date
-  is_paid       Boolean
-  user          User     @relation(fields: [user_id], references: [id])
+  id        Int      @id @default(autoincrement())
+  debt_name String
+  debt_bank String
+  amount    Float
+  date      DateTime @default(now())
+  user_id   Int
+  due_date  DateTime @db.Date
+  is_paid   Boolean
+  user      User     @relation(fields: [user_id], references: [id])
 }

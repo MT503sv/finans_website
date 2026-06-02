@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { addDebt, deleteDebt, clearAllDebts } from "../actions/debts";
 
 interface Debt {
-  id: string;
-  creditor: string;
+  id: number;
+  debt_bank: string;
   amount: number;
-  dueDate: string;
+  due_date: Date;
+  is_paid: boolean;
+  date: Date;
 }
 
 function CalendarPicker({
@@ -33,7 +36,7 @@ function CalendarPicker({
 
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const firstDay = new Date(viewYear, viewMonth, 1).getDay();
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
   const selected = value
     ? (() => { const [m, d, y] = value.split("/"); return `${y}-${m?.padStart(2, "0")}-${d?.padStart(2, "0")}`; })()
@@ -60,17 +63,14 @@ function CalendarPicker({
   );
 
   return (
-    <div
-      ref={ref}
-      className="absolute z-50 top-full mt-1 left-0 bg-white border border-gray-200 rounded-xl shadow-lg p-3 w-64"
-    >
+    <div ref={ref} className="absolute z-50 top-full mt-1 left-0 bg-white border border-gray-200 rounded-xl shadow-lg p-3 w-64">
       <div className="flex items-center justify-between mb-2">
         <button onClick={prevMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm">‹</button>
         <span className="text-sm font-semibold text-[#010221]">{monthNames[viewMonth]} {viewYear}</span>
         <button onClick={nextMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm">›</button>
       </div>
       <div className="grid grid-cols-7 gap-0.5 mb-1">
-        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(d => (
+        {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d => (
           <div key={d} className="text-center text-[10px] text-gray-400 font-medium py-0.5">{d}</div>
         ))}
       </div>
@@ -83,10 +83,7 @@ function CalendarPicker({
             <button
               key={day}
               onClick={() => selectDay(day)}
-              className={`text-xs py-1 rounded-lg transition-colors ${isSelected
-                  ? "bg-[#010221] text-white font-semibold"
-                  : "hover:bg-gray-100 text-gray-700"
-                }`}
+              className={`text-xs py-1 rounded-lg transition-colors ${isSelected ? "bg-[#010221] text-white font-semibold" : "hover:bg-gray-100 text-gray-700"}`}
             >
               {day}
             </button>
@@ -97,12 +94,13 @@ function CalendarPicker({
   );
 }
 
-export default function Debts() {
+export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
+  const [debts, setDebts] = useState<Debt[]>(initialDebts);
   const [creditor, setCreditor] = useState("");
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const [debts, setDebts] = useState<Debt[]>([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [showClearAll, setShowClearAll] = useState(false);
@@ -114,6 +112,10 @@ export default function Debts() {
 
   const menuRef = useRef<HTMLDivElement>(null);
   const clearAllRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setDebts(initialDebts);
+  }, [initialDebts]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -129,7 +131,6 @@ export default function Debts() {
   };
 
   const handleDateInput = (val: string) => {
-    // Allow typing date manually: digits and slashes only
     const cleaned = val.replace(/[^\d/]/g, "");
     setDueDate(cleaned);
   };
@@ -143,7 +144,7 @@ export default function Debts() {
     return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     const missing = [];
     if (!creditor.trim()) missing.push("Creditor");
     if (!amount || parseFloat(amount) <= 0) missing.push("Amount");
@@ -151,7 +152,7 @@ export default function Debts() {
     if (!dueDate) {
       missing.push("Due Date");
     } else if (!isValidDate(dueDate)) {
-      setError("The date entered is not valid. Please use the format M/D/YYYY with a real date (e.g. 5/20/2026).");
+      setError("The date entered is not valid. Please use the format M/D/YYYY (e.g. 5/20/2026).");
       return;
     }
 
@@ -160,27 +161,32 @@ export default function Debts() {
       return;
     }
 
-    setDebts(prev => [{
-      id: Date.now().toString(),
-      creditor: creditor.trim(),
-      amount: parseFloat(parseFloat(amount).toFixed(2)),
-      dueDate,
-    }, ...prev]);
-
-    setCreditor("");
-    setAmount("");
-    setDueDate("");
-    setError("");
-    setCurrentPage(1);
+    setLoading(true);
+    try {
+      await addDebt({
+        debt_bank: creditor.trim(),
+        amount: parseFloat(parseFloat(amount).toFixed(2)),
+        due_date: dueDate,
+      });
+      setCreditor("");
+      setAmount("");
+      setDueDate("");
+      setError("");
+      setCurrentPage(1);
+    } catch {
+      setError("Error saving. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteDebt = (id: string) => {
-    setDebts(prev => prev.filter(d => d.id !== id));
+  const handleDelete = async (id: number) => {
+    await deleteDebt(id);
     setOpenMenu(null);
   };
 
-  const clearAll = () => {
-    setDebts([]);
+  const handleClearAll = async () => {
+    await clearAllDebts();
     setShowClearAll(false);
     setCurrentPage(1);
   };
@@ -256,17 +262,16 @@ export default function Debts() {
           </div>
         </div>
 
-        {/* Add button row */}
+        {/* Add button */}
         <div className="flex justify-end mt-4">
           <button
             onClick={handleAdd}
             className="bg-[#010221] text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-[#010221]/85 active:scale-95 transition-all whitespace-nowrap cursor-pointer"
           >
-            Add Debt +
+            {loading ? "Saving..." : "Add Debt +"}
           </button>
         </div>
 
-        {/* Error message */}
         {error && (
           <p className="mt-3 text-xs text-red-500 flex items-center gap-1.5">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -282,14 +287,12 @@ export default function Debts() {
         <h2 className="text-lg font-bold text-[#010221]">Debts History</h2>
         <p className="text-xs text-gray-400 mt-0.5 mb-5">All your recorded debts.</p>
 
-        {/* Table */}
         <div className="w-full">
           {/* Header row */}
           <div className="grid grid-cols-[1fr_1fr_1fr_40px] border-b border-gray-200 pb-2 mb-1">
             <span className="text-xs font-semibold text-[#010221] px-2">Creditor</span>
             <span className="text-xs font-semibold text-[#010221] px-2">Amount</span>
             <span className="text-xs font-semibold text-[#010221] px-2">Due Date</span>
-            {/* Clear all menu */}
             <div className="relative flex justify-center" ref={clearAllRef}>
               <button
                 onClick={() => setShowClearAll(v => !v)}
@@ -324,22 +327,24 @@ export default function Debts() {
                 key={debt.id}
                 className="grid grid-cols-[1fr_1fr_1fr_40px] py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors rounded-lg"
               >
-                <span className="text-sm text-[#010221] px-2">{debt.creditor}</span>
+                <span className="text-sm text-[#010221] px-2">{debt.debt_bank}</span>
                 <span className="text-sm text-red-400 font-medium px-2">${debt.amount.toFixed(2)}</span>
-                <span className="text-sm text-gray-600 px-2">{debt.dueDate}</span>
-                <div className="relative flex justify-center" ref={openMenu === debt.id ? menuRef : undefined}>
+                <span className="text-sm text-gray-600 px-2">
+                  {new Date(debt.due_date).toLocaleDateString()}
+                </span>
+                <div className="relative flex justify-center" ref={openMenu === String(debt.id) ? menuRef : undefined}>
                   <button
-                    onClick={() => setOpenMenu(openMenu === debt.id ? null : debt.id)}
+                    onClick={() => setOpenMenu(openMenu === String(debt.id) ? null : String(debt.id))}
                     className="p-1 rounded-md hover:bg-gray-100 text-gray-400 hover:text-[#010221] transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" />
                     </svg>
                   </button>
-                  {openMenu === debt.id && (
+                  {openMenu === String(debt.id) && (
                     <div className="absolute z-50 top-full right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden w-32">
                       <button
-                        onClick={() => deleteDebt(debt.id)}
+                        onClick={() => handleDelete(debt.id)}
                         className="w-full text-left px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 font-medium transition-colors flex items-center gap-2"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -371,10 +376,7 @@ export default function Debts() {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${currentPage === page
-                    ? "bg-[#010221] text-white"
-                    : "border border-gray-200 text-gray-600 hover:bg-gray-50"
-                  }`}
+                className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${currentPage === page ? "bg-[#010221] text-white" : "border border-gray-200 text-gray-600 hover:bg-gray-50"}`}
               >
                 {page}
               </button>
