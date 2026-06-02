@@ -20,6 +20,7 @@ model User {
   outflows        Outflows[]
   reports         Reports[]
   sales           Sales[]
+  debts           Debts[]
 }
 
 model Incomes {
@@ -99,5 +100,18 @@ model Financial_goals {
   due_date      DateTime @db.Date
   target_amount Float?   @db.Real
   is_completed  Boolean
+  user          User     @relation(fields: [user_id], references: [id])
+}
+
+
+model Debts {
+  id            Int      @id @default(autoincrement())
+  debt_name     String
+  debt_bank     String
+  amount        Float
+  date          DateTime @default(now())
+  user_id       Int
+  due_date      DateTime @db.Date
+  is_paid       Boolean
   user          User     @relation(fields: [user_id], references: [id])
 }
