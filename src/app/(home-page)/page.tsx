@@ -1,9 +1,10 @@
-
+import Footer from "@/components/footer";
 import FirstBlock from "../home-page/components/FirstBlock/page";
 import SecondBlock from "../home-page/components/SecondBlock/page";
 import ThirdBlock from "../home-page/components/ThirdBlock/page";
 import FourthBlock from "../home-page/components/FourthBlock/page";
 import FifthBlock from "../home-page/components/FifthBlock/page";
+
 
 export default function HomePage() {
   return (
@@ -23,6 +24,8 @@ export default function HomePage() {
 
       {/*Bloque 5*/}
       <FifthBlock/>
+
+      <Footer />
 
     </main>
   );

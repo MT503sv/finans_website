@@ -26,7 +26,6 @@ import {
   LayoutDashboard,
   FileBarChart2,
   Package,
-  Calculator,
   Target,
   Bot,
   ScanLine,
@@ -43,13 +42,15 @@ interface NavItem {
 
 const data: NavItem[] = [
   { section: "My business", title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { section: "My business", title: "AI Reports", url: "/reports", icon: FileBarChart2 },
-  { section: "Management", title: "Inventory", url: "/inventory", icon: Package },
-  { section: "Management", title: "Budgets", url: "/budgets", icon: Calculator },
-  { section: "Management", title: "My Goals", url: "/goals", icon: Target },
-  { section: "Management", title: "Tracking", url: "/dataTracking", icon: FileBarChart2 },
+  { section: "My business", title: "Inventory", url: "/inventory", icon: Package },
+  { section: "My business", title: "My Goals", url: "/goals", icon: Target },
+  { section: "Tracking", title: "Sales", url: "/sales", icon: FileBarChart2 },  
+  { section: "Tracking", title: "Incomes", url: "/incomes", icon: FileBarChart2 },
+  { section: "Tracking", title: "Expenses", url: "/expenses", icon: FileBarChart2 },
+  { section: "Tracking", title: "Debts", url: "/debts", icon: FileBarChart2 },
   { section: "Tools", title: "AI chat", url: "/ai-chat", icon: Bot },
   { section: "Tools", title: "Scanner", url: "/ocr", icon: ScanLine },
+  { section: "Tools", title: "AI Reports", url: "/reports", icon: FileBarChart2 },
   { section: "Premium", title: "Get Premium", url: "/plans", icon: Star },
 ]
 

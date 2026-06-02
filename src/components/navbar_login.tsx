@@ -9,8 +9,6 @@ export default function NavbarLogin() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
-    { label: "Services", href: "/services" },
-    { label: "Pricing", href: "/plans" },
     { label: "About Us", href: "/about-us" },
     { label: "FQAs", href: "/FAQ" },
   ];
@@ -33,7 +31,7 @@ export default function NavbarLogin() {
           </Link>
         </div>
 
-        <div className="hidden lg:flex items-center space-x-10 cursor-pointer -ml-125">
+        <div className="hidden lg:flex items-center space-x-10 cursor-pointer -ml-160">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={linkClass}>
               {link.label}

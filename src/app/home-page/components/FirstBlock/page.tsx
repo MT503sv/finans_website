@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function FirstBlock() {
   return (
-    <div className="font-sans bg-[#FFFFFF] px-6 sm:px-10 md:px-16 lg:px-24 py-10 sm:py-14">
+    <div className="font-sans bg-[#FFFFFF] px-6 sm:px-10 md:px-20 lg:px-24 py-10 sm:py-20">
       <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
 
         {/* LEFT SIDE */}
@@ -12,9 +12,9 @@ export default function FirstBlock() {
             <h1>Understand your</h1>
             <div className="flex flex-wrap gap-2">
               <h1>money.</h1>
-              <h1 className="text-[#010221]">Grow your</h1>
+              <h1 className="text-blue-950">Grow your</h1>
             </div>
-            <h1 className="text-[#010221]">business.</h1>
+            <h1 className="text-blue-950">business.</h1>
           </div>
 
           <p className="text-sm sm:text-base md:text-lg max-w-md text-gray-600 leading-relaxed">

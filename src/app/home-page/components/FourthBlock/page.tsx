@@ -60,9 +60,20 @@ const plans = [
 export default function PricingBlock() {
   return (
     <section className="font-sans py-16 px-4">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-12">
-        Plans for every stage of your business
-      </h2>
+      <div className="text-center max-w-4xl mx-auto mb-20">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-[#000000]">
+          Plans for every 
+          <br />
+          stage of your
+          <span className="text-blue-950 mx-3">
+            business
+          </span>
+        </h1>
+
+        <p className="mt-6 text-lg text-gray-500 leading-relaxed">
+          accessible plans for micror and small enterprises
+        </p>
+      </div>
 
       <div className="flex flex-col md:flex-row items-center justify-center gap-6 max-w-5xl mx-auto">
         {plans.map((plan) => (

@@ -68,8 +68,8 @@ export default async function Data() {
 
   return (
     <div className="text-black font-sans">
-      <div className="mt-2">
-        <h1 className="text-4xl font-semibold">Dashboard</h1>
+      <div className="mb-4 mt-3">
+        <h1 className="text-2xl font-bold text-[#010221]">Dashboard</h1>
       </div>
       
 

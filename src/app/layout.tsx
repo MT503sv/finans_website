@@ -25,7 +25,7 @@ export default async function RootLayout({
   const isLogged = !!userId;
 
   return (
-    <ClerkProvider>
+    <ClerkProvider afterSignOutUrl = "/">
       <html
         lang="en"
         className={cn(

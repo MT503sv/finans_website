@@ -13,8 +13,8 @@ export default function OCRPage() {
 
   return (
     <div className="min-h-screen bg-white py-5">
-      <div className="mt-1 mb-5">
-        <h1 className="text-4xl font-semibold mx-5">Scanner</h1>
+      <div className="mb-6 px-6 pt-3">
+        <h1 className="text-2xl font-bold text-[#010221]">Kuali Scanner</h1>
       </div>
       {step === 'idle' ? (
         <>
