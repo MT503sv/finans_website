@@ -164,6 +164,17 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
         amount: parseFloat(parseFloat(amount).toFixed(2)),
         due_date: dueDate,
       });
+
+      const [m, d, y] = dueDate.split("/");
+      setDebts(prev => [{
+        id: Date.now(),
+        debt_bank: creditor.trim(),
+        amount: parseFloat(parseFloat(amount).toFixed(2)),
+        due_date: new Date(`${y}-${m?.padStart(2, "0")}-${d?.padStart(2, "0")}`),
+        is_paid: false,
+        date: new Date(),
+      }, ...prev]);
+
       setCreditor("");
       setAmount("");
       setDueDate("");
@@ -191,17 +202,14 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
 
   return (
     <div className="min-h-screen bg-[#ffffff] px-6 py-8">
-      {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#010221]">Debts</h1>
         <p className="text-sm text-gray-500 mt-0.5">Keep track of what you owe in a simple way</p>
       </div>
 
-      {/* Add Debt Card */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-5">
         <div className="flex flex-col md:flex-row gap-4 items-end">
 
-          {/* Creditor */}
           <div className="flex-1">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Creditor</label>
             <input
@@ -213,7 +221,6 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
             />
           </div>
 
-          {/* Amount */}
           <div className="flex-1">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Amount</label>
             <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#010221]/20 focus-within:border-[#010221] transition-all">
@@ -229,7 +236,6 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
             </div>
           </div>
 
-          {/* Due Date */}
           <div className="flex-1 relative">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Due Date</label>
             <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#010221]/20 focus-within:border-[#010221] transition-all">
@@ -260,11 +266,11 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
           </div>
         </div>
 
-        {/* Add button */}
         <div className="flex justify-end mt-4">
           <button
             onClick={handleAdd}
-            className="bg-[#010221] text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-[#010221]/85 active:scale-95 transition-all whitespace-nowrap cursor-pointer"
+            disabled={loading}
+            className="bg-[#010221] text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-[#010221]/85 active:scale-95 transition-all whitespace-nowrap cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Saving..." : "Add Debt +"}
           </button>
@@ -280,13 +286,11 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
         )}
       </div>
 
-      {/* Debts History Card */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
         <h2 className="text-lg font-bold text-[#010221]">Debts History</h2>
         <p className="text-xs text-gray-400 mt-0.5 mb-5">All your recorded debts.</p>
 
         <div className="w-full">
-          {/* Header row */}
           <div className="grid grid-cols-[1fr_1fr_1fr_40px] border-b border-gray-200 pb-2 mb-1">
             <span className="text-xs font-semibold text-[#010221] px-2">Creditor</span>
             <span className="text-xs font-semibold text-[#010221] px-2">Amount</span>
@@ -316,7 +320,6 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
             </div>
           </div>
 
-          {/* Rows */}
           {paginated.length === 0 ? (
             <div className="text-center py-10 text-sm text-gray-400">No debts recorded yet.</div>
           ) : (
@@ -358,7 +361,6 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
           )}
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-2 mt-6">
             <button
