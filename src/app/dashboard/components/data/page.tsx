@@ -18,6 +18,8 @@ export default async function Data() {
     thisMonthExpenses,
     lastMonthExpenses,
     todaySales,
+    thisMonthSales,
+    lastMonthSales,
   ] = await Promise.all([
     prisma.incomes.aggregate({
       _sum: { amount: true },
@@ -39,18 +41,37 @@ export default async function Data() {
       where: { date: { gte: todayStart, lte: todayEnd } },
       select: { quantity_of_sold_items: true, price_of_item: true },
     }),
+    // Sales del mes actual
+    prisma.sales.findMany({
+      where: { date: { gte: thisMonthStart, lte: thisMonthEnd } },
+      select: { quantity_of_sold_items: true, price_of_item: true },
+    }),
+    // Sales del mes pasado
+    prisma.sales.findMany({
+      where: { date: { gte: lastMonthStart, lte: lastMonthEnd } },
+      select: { quantity_of_sold_items: true, price_of_item: true },
+    }),
   ]);
 
-  const totalIncomeThis  = thisMonthIncomes._sum.amount  ?? 0;
-  const totalIncomeLast  = lastMonthIncomes._sum.amount  ?? 0;
-  const totalExpenseThis = thisMonthExpenses._sum.amount ?? 0;
-  const totalExpenseLast = lastMonthExpenses._sum.amount ?? 0;
-  const totalProfit      = totalIncomeThis - totalExpenseThis;
-  const totalSalesToday  = todaySales.reduce(
+  const totalSalesToday = todaySales.reduce(
     (sum, s) => sum + (s.quantity_of_sold_items ?? 0) * (s.price_of_item ?? 0), 0
   );
 
-  
+  // Total de ventas del mes actual y pasado
+  const totalSalesThis = thisMonthSales.reduce(
+    (sum, s) => sum + (s.quantity_of_sold_items ?? 0) * (s.price_of_item ?? 0), 0
+  );
+  const totalSalesLast = lastMonthSales.reduce(
+    (sum, s) => sum + (s.quantity_of_sold_items ?? 0) * (s.price_of_item ?? 0), 0
+  );
+
+  // Ingresos + ventas
+  const totalIncomeThis  = (thisMonthIncomes._sum.amount ?? 0) + totalSalesThis;
+  const totalIncomeLast  = (lastMonthIncomes._sum.amount ?? 0) + totalSalesLast;
+  const totalExpenseThis = thisMonthExpenses._sum.amount ?? 0;
+  const totalExpenseLast = lastMonthExpenses._sum.amount ?? 0;
+  const totalProfit      = totalIncomeThis - totalExpenseThis;
+
   const incomePct  = totalIncomeLast  > 0 ? Math.round(((totalIncomeThis  - totalIncomeLast)  / totalIncomeLast)  * 100) : null;
   const expensePct = totalExpenseLast > 0 ? Math.round(((totalExpenseThis - totalExpenseLast) / totalExpenseLast) * 100) : null;
 
@@ -61,7 +82,7 @@ export default async function Data() {
     const positive = inverse ? pct < 0 : pct >= 0;
     return (
       <span className={`text-xs font-medium ${positive ? "text-green-500" : "text-red-500"}`}>
-        {pct >= 0 ? "+$" : ""}{pct} vs last month
+        {pct >= 0 ? "+" : ""}{pct}% vs last month
       </span>
     );
   };
@@ -71,17 +92,14 @@ export default async function Data() {
       <div className="mb-4 mt-3">
         <h1 className="text-2xl font-bold text-[#010221]">Dashboard</h1>
       </div>
-      
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
 
-        
         <div className="bg-white shadow-lg rounded-lg p-5">
           <h2 className="font-semibold text-xs text-gray-500">Sales today</h2>
           <h2 className="font-bold text-2xl mt-1">{fmt(totalSalesToday)}</h2>
         </div>
 
-        
         <div className="bg-white shadow-lg rounded-lg p-4">
           <h2 className="font-semibold text-xs text-gray-500">Income</h2>
           <h2 className="font-bold text-2xl mt-1">{fmt(totalIncomeThis)}</h2>
@@ -99,7 +117,6 @@ export default async function Data() {
           </div>
         </div>
 
-        
         <div className="bg-white shadow-lg rounded-lg p-4">
           <h2 className="font-semibold text-xs text-gray-500">Expenses</h2>
           <h2 className="font-bold text-2xl mt-1">{fmt(totalExpenseThis)}</h2>
@@ -117,7 +134,6 @@ export default async function Data() {
           </div>
         </div>
 
-        
         <div className="bg-slate-950 shadow-lg rounded-lg p-4">
           <h2 className="font-bold text-xs text-slate-400">Profit</h2>
           <h2 className="font-bold text-2xl text-white mt-1">{fmt(totalProfit)}</h2>
