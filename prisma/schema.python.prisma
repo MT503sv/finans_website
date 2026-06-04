@@ -1,0 +1,119 @@
+generator pyclient {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = -1
+  engineType           = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int               @id @default(autoincrement())
+  email           String            @unique
+  name            String
+  createdAt       DateTime          @default(now())
+  ai_requests     AI_requests[]
+  budget          Budget[]
+  financial_goals Financial_goals[]
+  incomes         Incomes[]
+  inventory       Inventory[]
+  outflows        Outflows[]
+  reports         Reports[]
+  sales           Sales[]
+  debts           Debts[]
+}
+
+model Incomes {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  description String
+  income_type String
+  date        DateTime @default(now())
+  user_id     Int
+  user        User     @relation(fields: [user_id], references: [id])
+}
+
+model Outflows {
+  id           Int      @id @default(autoincrement())
+  amount       Float
+  description  String
+  outflow_type String
+  date         DateTime @default(now())
+  user_id      Int
+  user         User     @relation(fields: [user_id], references: [id])
+}
+
+model Sales {
+  id                     Int      @id @default(autoincrement())
+  item_sold              String
+  quantity_of_sold_items Int
+  price_of_item          Float
+  date                   DateTime @default(now())
+  user_id                Int
+  user                   User     @relation(fields: [user_id], references: [id])
+}
+
+model Budget {
+  id                 Int      @id @default(autoincrement())
+  item_name          String
+  item_price         Float
+  revenues_available Float
+  outflows_to_come   Float
+  date               DateTime @default(now())
+  user_id            Int
+  user               User     @relation(fields: [user_id], references: [id])
+}
+
+model AI_requests {
+  id            Int      @id @default(autoincrement())
+  request_text  String
+  response_text String
+  date          DateTime @default(now())
+  user_id       Int
+  user          User     @relation(fields: [user_id], references: [id])
+}
+
+model Reports {
+  id         Int      @id @default(autoincrement())
+  report_url String
+  date       DateTime @default(now())
+  user_id    Int
+  user       User     @relation(fields: [user_id], references: [id])
+}
+
+model Inventory {
+  id                          Int      @id @default(autoincrement())
+  item_name                   String
+  quantity_of_available_items Int
+  price                       Float
+  date                        DateTime @default(now())
+  user_id                     Int
+  user                        User     @relation(fields: [user_id], references: [id])
+}
+
+model Financial_goals {
+  id            Int      @id @default(autoincrement())
+  goal_name     String
+  date          DateTime @default(now())
+  user_id       Int
+  goal_type     String
+  due_date      DateTime @db.Date
+  target_amount Float?   @db.Real
+  is_completed  Boolean
+  user          User     @relation(fields: [user_id], references: [id])
+}
+
+model Debts {
+  id        Int      @id @default(autoincrement())
+  debt_name String
+  debt_bank String
+  amount    Float
+  date      DateTime @default(now())
+  user_id   Int
+  due_date  DateTime @db.Date
+  is_paid   Boolean
+  user      User     @relation(fields: [user_id], references: [id])
+}
