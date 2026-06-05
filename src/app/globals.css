@@ -14,5 +14,29 @@
   --primary-foreground: #e9fafd;
 }
 
+@keyframes border-spin {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
+.animated-border {
+  position: relative;
+  border-radius: 0.5rem;
+  padding: 2px; /* este es el "borde" */
+  background: linear-gradient(
+    270deg,
+    #C2C9FF,
+    #e9fafd,
+    #010221
+  );
+  background-size: 300% 300%;
+  animation: border-spin 4s ease infinite;
+}
 
+.animated-border-inner {
+  background: white;
+  border-radius: 0.4rem;
+  width: 100%;
+  height: 100%;
+}

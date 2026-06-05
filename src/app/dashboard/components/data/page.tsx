@@ -53,9 +53,9 @@ export default async function Data() {
     }),
   ]);
 
-  const totalSalesToday = todaySales.reduce(
-    (sum, s) => sum + (s.quantity_of_sold_items ?? 0) * (s.price_of_item ?? 0), 0
-  );
+  const totalSalesToday = prisma.sales.count({
+    where: {}
+  });
 
   // Total de ventas del mes actual y pasado
   const totalSalesThis = thisMonthSales.reduce(
@@ -93,11 +93,11 @@ export default async function Data() {
         <h1 className="text-2xl font-bold text-[#010221]">Dashboard</h1>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
 
         <div className="bg-white shadow-lg rounded-lg p-5">
           <h2 className="font-semibold text-xs text-gray-500">Sales today</h2>
-          <h2 className="font-bold text-2xl mt-1">{fmt(totalSalesToday)}</h2>
+          <h2 className="font-bold text-2xl mt-1">{(totalSalesToday)}</h2>
         </div>
 
         <div className="bg-white shadow-lg rounded-lg p-4">
