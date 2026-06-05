@@ -1,14 +1,5 @@
 from io import BytesIO
 import pandas as pd
-
-from openpyxl.styles import (
-    Font,
-    PatternFill,
-    Alignment,
-    Border,
-    Side
-)
-
 from openpyxl.utils import get_column_letter
 
 
@@ -16,187 +7,29 @@ def generate_excel(data, insights=None):
 
     buffer = BytesIO()
 
+    if not data:
+        data = [{"message": "No data available"}]
+
     df = pd.DataFrame(data)
 
-    with pd.ExcelWriter(
-        buffer,
-        engine="openpyxl"
-    ) as writer:
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
 
-        # =========================
-        # REPORT SHEET
-        # =========================
-        df.to_excel(
-            writer,
-            index=False,
-            sheet_name="Financial Report"
-        )
+        df.to_excel(writer, index=False, sheet_name="Report")
 
-        workbook = writer.book
-        worksheet = writer.sheets["Financial Report"]
+        ws = writer.sheets["Report"]
 
-        header_fill = PatternFill(
-            "solid",
-            fgColor="010221"
-        )
+        if ws.max_column > 0:
 
-        header_font = Font(
-            color="FFFFFF",
-            bold=True,
-            size=12
-        )
+            for col in ws.columns:
 
-        thin_border = Border(
-            left=Side(style="thin"),
-            right=Side(style="thin"),
-            top=Side(style="thin"),
-            bottom=Side(style="thin")
-        )
+                max_len = 0
 
-        for cell in worksheet[1]:
+                for cell in col:
+                    if cell.value is not None:
+                        max_len = max(max_len, len(str(cell.value)))
 
-            cell.fill = header_fill
-            cell.font = header_font
-            cell.alignment = Alignment(
-                horizontal="center"
-            )
-            cell.border = thin_border
-
-        for row in worksheet.iter_rows(
-            min_row=2
-        ):
-            for cell in row:
-
-                cell.border = thin_border
-
-                cell.alignment = Alignment(
-                    horizontal="center"
-                )
-
-        for column in worksheet.columns:
-
-            max_length = 0
-
-            column_letter = get_column_letter(
-                column[0].column
-            )
-
-            for cell in column:
-
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except:
-                    pass
-
-            adjusted_width = max_length + 4
-
-            worksheet.column_dimensions[
-                column_letter
-            ].width = adjusted_width
-
-        # =========================
-        # SUMMARY SHEET
-        # =========================
-        if insights:
-
-            summary = workbook.create_sheet(
-                "Financial Summary"
-            )
-
-            summary["A1"] = "FINANCIAL SUMMARY"
-
-            summary["A1"].font = Font(
-                bold=True,
-                size=16,
-                color="FFFFFF"
-            )
-
-            summary["A1"].fill = PatternFill(
-                "solid",
-                fgColor="010221"
-            )
-
-            summary.merge_cells("A1:B1")
-
-            metrics = [
-                ["Total Income", insights["income"]],
-                ["Total Sales", insights["sales"]],
-                ["Total Revenue", insights["revenue"]],
-                ["Total Expenses", insights["expenses"]],
-                ["Net Profit", insights["profit"]],
-                ["Profit Margin (%)", insights["profit_margin"]],
-                ["Status", insights["message"]]
-            ]
-
-            start_row = 3
-
-            for i, item in enumerate(metrics):
-
-                row = start_row + i
-
-                summary.cell(
-                    row=row,
-                    column=1,
-                    value=item[0]
-                )
-
-                summary.cell(
-                    row=row,
-                    column=2,
-                    value=item[1]
-                )
-
-            # Estilo tabla resumen
-            for row in range(
-                start_row,
-                start_row + len(metrics)
-            ):
-
-                summary.cell(
-                    row=row,
-                    column=1
-                ).font = Font(
-                    bold=True
-                )
-
-                summary.cell(
-                    row=row,
-                    column=1
-                ).fill = PatternFill(
-                    "solid",
-                    fgColor="E8ECF8"
-                )
-
-                summary.cell(
-                    row=row,
-                    column=1
-                ).border = thin_border
-
-                summary.cell(
-                    row=row,
-                    column=2
-                ).border = thin_border
-
-            profit_cell = summary["B7"]
-
-            if insights["profit"] >= 0:
-
-                profit_cell.fill = PatternFill(
-                    "solid",
-                    fgColor="C6EFCE"
-                )
-
-            else:
-
-                profit_cell.fill = PatternFill(
-                    "solid",
-                    fgColor="FFC7CE"
-                )
-
-            summary.column_dimensions["A"].width = 30
-            summary.column_dimensions["B"].width = 25
+                col_letter = get_column_letter(col[0].column)
+                ws.column_dimensions[col_letter].width = max_len + 3
 
     buffer.seek(0)
-
     return buffer

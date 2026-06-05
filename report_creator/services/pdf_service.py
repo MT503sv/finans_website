@@ -7,7 +7,6 @@ from reportlab.lib.styles import getSampleStyleSheet
 def generate_pdf(data, insights=None):
 
     buffer = BytesIO()
-
     doc = SimpleDocTemplate(buffer)
     styles = getSampleStyleSheet()
 
@@ -23,14 +22,17 @@ def generate_pdf(data, insights=None):
 
     table_data = [["Type", "Product", "Qty", "Unit Price", "Amount"]]
 
-    for r in data:
-        table_data.append([
-            r["type"],
-            r["product"],
-            r["quantity"],
-            r["unit_price"],
-            r["amount"],
-        ])
+    if not data:
+        table_data.append(["No data available", "", "", "", ""])
+    else:
+        for r in data:
+            table_data.append([
+                r.get("type", ""),
+                r.get("product", ""),
+                r.get("quantity", ""),
+                r.get("unit_price", ""),
+                r.get("amount", ""),
+            ])
 
     table = Table(table_data)
 
@@ -43,7 +45,5 @@ def generate_pdf(data, insights=None):
     elements.append(table)
 
     doc.build(elements)
-
     buffer.seek(0)
-
     return buffer
