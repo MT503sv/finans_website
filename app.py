@@ -116,7 +116,7 @@ def chat():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_question}
             ],
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant", # <- Modelo nuevo actualizado
             temperature=0.4
         )
 
@@ -133,6 +133,8 @@ def chat():
         return jsonify({"response": response_content}), 200
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()  # <- Cópialo y pégalo justo aquí, al final de la función chat()
         return jsonify({"error": str(e)}), 500
 
 @app.route('/clientes', methods=['GET'])
@@ -160,6 +162,8 @@ def get_clientes():
         resultado = asyncio.run(fetch())
         return jsonify(resultado), 200
     except Exception as e:
+        import traceback
+        traceback.print_exc()  # <- Esto imprimirá todo el rastro del error en rojo en tu terminal
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
