@@ -48,7 +48,7 @@ const data: NavItem[] = [
   { section: "Tracking", title: "Incomes", url: "/incomes", icon: FileBarChart2 },
   { section: "Tracking", title: "Expenses", url: "/expenses", icon: FileBarChart2 },
   { section: "Tracking", title: "Debts", url: "/debts", icon: FileBarChart2 },
-  { section: "Tools", title: "AI chat", url: "/ai-chat", icon: Bot },
+  { section: "Tools", title: "AI chat", url: "/kuali", icon: Bot },
   { section: "Tools", title: "Scanner", url: "/ocr", icon: ScanLine },
   { section: "Tools", title: "AI Reports", url: "/reports", icon: FileBarChart2 },
   { section: "Premium", title: "Get Premium", url: "/plans", icon: Star },

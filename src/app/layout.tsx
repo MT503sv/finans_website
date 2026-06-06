@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Digital financial management solution tailored for MYPEs in El Salvador.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
