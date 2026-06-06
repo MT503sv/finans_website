@@ -57,7 +57,7 @@ export default async function Data() {
     where: {}
   });
 
-  // Total de ventas del mes actual y pasado
+  
   const totalSalesThis = thisMonthSales.reduce(
     (sum, s) => sum + (s.quantity_of_sold_items ?? 0) * (s.price_of_item ?? 0), 0
   );

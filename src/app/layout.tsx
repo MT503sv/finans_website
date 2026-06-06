@@ -6,6 +6,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 import NavbarWrapper from "@/components/NavbarWrapper";
 import LoggedLayout from "@/components/loggedLayout"
+import { headers } from "next/headers";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -23,9 +24,12 @@ export default async function RootLayout({
 }>) {
   const { userId } = await auth();
   const isLogged = !!userId;
+  const headersList = await headers();
+  const pathname = headersList.get("x-invoke-path") || headersList.get("x-pathname") || "";
+  const isAuthPage = pathname.includes("/sign-in") || pathname.includes("/sign-up");
 
   return (
-    <ClerkProvider afterSignOutUrl = "/">
+    <ClerkProvider afterSignOutUrl="/">
       <html
         lang="en"
         className={cn(
@@ -37,17 +41,14 @@ export default async function RootLayout({
         )}
       >
         <body className="min-h-full">
-
           {!isLogged ? (
             <div className="flex flex-col min-h-screen">
-              <NavbarWrapper userId={userId} />
+              {!isAuthPage && <NavbarWrapper userId={userId} />}
               <main className="flex-1">{children}</main>
             </div>
           ) : (
-
             <LoggedLayout>{children}</LoggedLayout>
           )}
-
         </body>
       </html>
     </ClerkProvider>
