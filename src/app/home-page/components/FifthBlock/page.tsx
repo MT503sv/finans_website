@@ -2,11 +2,11 @@ import Image from "next/image";
 
 export default function CTABlock() {
   return (
-    <section className="bg-white font-sans py-16 px-6 sm:px-10 md:px-16 lg:px-24 mb-20">
-      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-8">
+    <section className="bg-white font-sans py-10 sm:py-16 px-6 sm:px-10 md:px-16 lg:px-24 mb-10 sm:mb-20">
+      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 text-center sm:text-left">
 
         {/* Icon */}
-        <div>
+        <div className="shrink-0">
           <Image
             src="/homepage/Send-logo.png"
             alt="Paper plane"

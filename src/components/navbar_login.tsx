@@ -9,15 +9,16 @@ export default function NavbarLogin() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
+    { label: "Home", href: "/" },
     { label: "About Us", href: "/about-us" },
-    { label: "FQAs", href: "/FAQ" },
+    { label: "FAQs", href: "/FAQ" },
   ];
 
   const linkClass =
     "hover:underline hover:decoration-2 hover:underline-offset-4 hover:decoration-[#010221]";
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="bg-white">
       <div className="flex items-center justify-between px-6">
         <div className="shrink-0 flex items-center gap-3 mx-2 mb-1">
           <Link href="/" className="relative h-20 w-30 block">
@@ -31,7 +32,7 @@ export default function NavbarLogin() {
           </Link>
         </div>
 
-        <div className="hidden lg:flex items-center space-x-10 cursor-pointer -ml-170">
+        <div className="hidden lg:flex items-center space-x-10 cursor-pointer -ml-150">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={linkClass}>
               {link.label}

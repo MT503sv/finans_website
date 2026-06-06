@@ -4,7 +4,7 @@ import { TrendingUp, Clock, User, Check, Send, BarChart2, ChevronRight, Sparkles
 export default function ThirdBlock() {
   return (
     <div className="px-4 py-4 font-sans">
-      <section className="bg-[#EEEFFE] rounded-3xl max-w-6xl mx-auto px-10 py-10">
+      <section className="bg-[#EEEFFE] rounded-3xl max-w-6xl mx-auto px-6 sm:px-10 py-8 sm:py-10">
 
         {/* Powered by AI badge */}
         <div className="inline-flex items-center gap-1.5 border border-[#010221] rounded-full px-4 py-1 text-[11px] font-semibold text-[#010221] mb-8 tracking-widest uppercase">
@@ -13,11 +13,11 @@ export default function ThirdBlock() {
         </div>
 
         {/* Main grid */}
-        <div className="flex flex-col lg:flex-row gap-10 items-start relative">
+        <div className="flex flex-col lg:flex-row gap-8 sm:gap-10 items-start relative">
 
           {/* LEFT: Text content */}
           <div className="flex-1 min-w-0">
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 leading-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight mb-4">
               Meet{" "}
               <span className="text-[#010221]">Kuali</span>
               {", "}your AI
@@ -31,7 +31,7 @@ export default function ThirdBlock() {
               business grow.
             </p>
 
-            {/* Feature list with icon bubbles */}
+            {/* Feature list */}
             <div className="flex flex-col gap-5">
               {/* Smart insights */}
               <div className="flex items-center gap-4">
@@ -83,6 +83,7 @@ export default function ThirdBlock() {
             </div>
           </div>
 
+          {/* Kuali logo — solo en desktop */}
           <div className="hidden lg:flex absolute left-[490px] top-[20px] -translate-x-1/2 -translate-y-1/2 z-10">
             <Image
               src="/homepage/Kuali-logo.png"
@@ -95,12 +96,12 @@ export default function ThirdBlock() {
 
           {/* RIGHT: Cards */}
           <div className="flex-1 min-w-0 w-full">
-            <div className="bg-white rounded-2xl shadow-sm p-6 w-full">
+            <div className="bg-white rounded-2xl shadow-sm p-5 sm:p-6 w-full">
 
               {/* AI Insight card */}
-              <div className="flex items-start gap-4 mb-6 pb-6 border-b border-gray-100">
-                <div className="w-12 h-12 rounded-2xl bg-[#EEEFFE] flex items-center justify-center shrink-0">
-                  <BarChart2 size={22} className="text-[#010221]" />
+              <div className="flex items-start gap-3 sm:gap-4 mb-6 pb-6 border-b border-gray-100">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#EEEFFE] flex items-center justify-center shrink-0">
+                  <BarChart2 size={20} className="text-[#010221]" />
                 </div>
                 <div>
                   <p className="font-bold text-gray-900 text-base mb-1">AI insight</p>

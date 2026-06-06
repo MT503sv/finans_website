@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, memo } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import NavbarLogged from "@/components/navbar_logged"
+import MobileNav from "@/components/mobile-nav"
 
 const MemoSidebar = memo(AppSidebar)
 const MemoNavbar = memo(NavbarLogged)
@@ -44,14 +45,27 @@ export default function LoggedLayout({ children }: { children: React.ReactNode }
 
   return (
     <SidebarProvider open={open} onOpenChange={setOpen}>
-      <MemoSidebar
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onPin={handlePin}
-        pinned={pinned}
-      />
+      {/* Sidebar solo en desktop */}
+      <div className="hidden lg:block">
+        <MemoSidebar
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onPin={handlePin}
+          pinned={pinned}
+        />
+      </div>
+
       <SidebarInset>
-        <MemoNavbar />
+        {/* Navbar desktop */}
+        <div className="hidden lg:block">
+          <MemoNavbar />
+        </div>
+
+        {/* Navbar móvil con hamburguesa */}
+        <div className="lg:hidden">
+          <MobileNav />
+        </div>
+
         <main className="flex-1 p-0">{children}</main>
       </SidebarInset>
     </SidebarProvider>
