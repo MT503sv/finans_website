@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { ClerkProvider } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 import NavbarWrapper from "@/components/NavbarWrapper";
-import LoggedLayout from "@/components/loggedLayout"
+import LoggedLayout from "@/components/loggedLayout";
 import { UserSync } from "@/components/UserSync";
 import { headers } from "next/headers";
 
@@ -31,7 +31,6 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider afterSignOutUrl="/">
-      <UserSync />
       <html
         lang="en"
         className={cn(
@@ -49,7 +48,10 @@ export default async function RootLayout({
               <main className="flex-1">{children}</main>
             </div>
           ) : (
-            <LoggedLayout>{children}</LoggedLayout>
+            <LoggedLayout>
+              <UserSync />
+              {children}
+            </LoggedLayout>
           )}
         </body>
       </html>
