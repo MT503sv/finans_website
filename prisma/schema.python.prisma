@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id              Int               @id @default(autoincrement())
+  id              String            @id
   email           String            @unique
   name            String
   createdAt       DateTime          @default(now())
@@ -32,7 +32,7 @@ model Incomes {
   description String
   income_type String
   date        DateTime @default(now())
-  user_id     Int
+  user_id     String
   user        User     @relation(fields: [user_id], references: [id])
 }
 
@@ -42,7 +42,7 @@ model Outflows {
   description  String
   outflow_type String
   date         DateTime @default(now())
-  user_id      Int
+  user_id      String
   user         User     @relation(fields: [user_id], references: [id])
 }
 
@@ -52,7 +52,7 @@ model Sales {
   quantity_of_sold_items Int
   price_of_item          Float
   date                   DateTime @default(now())
-  user_id                Int
+  user_id                String
   user                   User     @relation(fields: [user_id], references: [id])
 }
 
@@ -63,7 +63,7 @@ model Budget {
   revenues_available Float
   outflows_to_come   Float
   date               DateTime @default(now())
-  user_id            Int
+  user_id            String
   user               User     @relation(fields: [user_id], references: [id])
 }
 
@@ -72,7 +72,7 @@ model AI_requests {
   request_text  String
   response_text String
   date          DateTime @default(now())
-  user_id       Int
+  user_id       String
   user          User     @relation(fields: [user_id], references: [id])
 }
 
@@ -80,7 +80,7 @@ model Reports {
   id         Int      @id @default(autoincrement())
   report_url String
   date       DateTime @default(now())
-  user_id    Int
+  user_id    String
   user       User     @relation(fields: [user_id], references: [id])
 }
 
@@ -90,7 +90,7 @@ model Inventory {
   quantity_of_available_items Int
   price                       Float
   date                        DateTime @default(now())
-  user_id                     Int
+  user_id                     String
   user                        User     @relation(fields: [user_id], references: [id])
 }
 
@@ -98,7 +98,7 @@ model Financial_goals {
   id            Int      @id @default(autoincrement())
   goal_name     String
   date          DateTime @default(now())
-  user_id       Int
+  user_id       String
   goal_type     String
   due_date      DateTime @db.Date
   target_amount Float?   @db.Real
@@ -112,7 +112,7 @@ model Debts {
   debt_bank String
   amount    Float
   date      DateTime @default(now())
-  user_id   Int
+  user_id   String
   due_date  DateTime @db.Date
   is_paid   Boolean
   user      User     @relation(fields: [user_id], references: [id])

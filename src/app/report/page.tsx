@@ -1,58 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
 import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
-
 import {
   DollarSign,
   ShoppingCart,
   TrendingUp,
-  Receipt,
+  ArrowDownCircle,
+  FileText,
+  Sheet,
+  X,
+  CheckCircle2,
 } from "lucide-react";
 
 export default function ReportsPage() {
-
   const [selectedReport, setSelectedReport] = useState("");
+  const [step, setStep] = useState<"idle" | "calendar" | "loading" | "done">("idle");
+  const [date, setDate] = useState<DateRange | undefined>(undefined);
+  const [files, setFiles] = useState({ pdf: "", excel: "" });
 
-  const [step, setStep] =
-    useState<"idle" | "calendar" | "loading" | "done">("idle");
+  const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  const [date, setDate] = useState<DateRange>({
-    from: undefined,
-    to: undefined,
-  });
+  // Only freeze body scrolling when a modal step is active
+  useEffect(() => {
+    if (step !== "idle" && step !== "loading") {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [step]);
 
-  const API = "http://localhost:5000";
-
-  const [files, setFiles] = useState({
-    pdf: "",
-    excel: "",
-  });
+  useEffect(() => {
+    const scrollableEl = document.querySelector('[data-sidebar="inset"]') as HTMLElement
+    if (scrollableEl) scrollableEl.style.overflow = "hidden"
+    return () => {
+      if (scrollableEl) scrollableEl.style.overflow = ""
+    }
+  }, [])
 
   function formatDate(d?: Date) {
     if (!d) return "";
     return format(d, "yyyy-MM-dd");
   }
 
-  // =========================
-  // GENERATE REPORT
-  // =========================
   async function generateReport() {
-
-    if (!date.from || !date.to || !selectedReport) return;
-
+    if (!date?.from || !date?.to || !selectedReport) return;
     setStep("loading");
 
     try {
-
       const res = await fetch(`${API}/generate_report`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: 1,
           report_type: selectedReport,
@@ -64,18 +67,18 @@ export default function ReportsPage() {
       if (!res.ok) throw new Error("Error generating report");
 
       const data = await res.json();
-
-      setFiles({
-        pdf: data.pdf,
-        excel: data.excel,
-      });
-
+      setFiles({ pdf: data.pdf, excel: data.excel });
       setStep("done");
-
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.error(error);
       setStep("idle");
     }
+  }
+
+  function closeModal() {
+    setStep("idle");
+    setDate(undefined);
+    setSelectedReport("");
   }
 
   const reports = [
@@ -83,183 +86,231 @@ export default function ReportsPage() {
       name: "Incomes",
       value: "incomes",
       icon: DollarSign,
-      color: "text-green-600",
-      bg: "bg-green-100",
+      color: "text-green-500",
+      bg: "bg-green-50",
+      border: "border-green-100",
+      hover: "hover:border-green-300 hover:bg-green-50/60",
     },
     {
       name: "Sales",
       value: "sales",
       icon: ShoppingCart,
-      color: "text-indigo-600",
-      bg: "bg-indigo-100",
+      color: "text-indigo-500",
+      bg: "bg-indigo-50",
+      border: "border-indigo-100",
+      hover: "hover:border-indigo-300 hover:bg-indigo-50/60",
     },
     {
       name: "Profit",
       value: "profit",
       icon: TrendingUp,
-      color: "text-yellow-600",
-      bg: "bg-yellow-100",
+      color: "text-yellow-500",
+      bg: "bg-yellow-50",
+      border: "border-yellow-100",
+      hover: "hover:border-yellow-300 hover:bg-yellow-50/60",
     },
     {
-      name: "Expenses",
+      name: "Expense",
       value: "expenses",
-      icon: Receipt,
-      color: "text-red-600",
-      bg: "bg-red-100",
+      icon: ArrowDownCircle,
+      color: "text-red-500",
+      bg: "bg-red-50",
+      border: "border-red-100",
+      hover: "hover:border-red-300 hover:bg-red-50/60",
     },
   ];
 
   return (
-    <main className="min-h-screen bg-[#F4F5F7] flex flex-col items-center p-6 md:p-10">
+    <main className="min-h-full bg-white flex flex-col p-6 md:p-10">
 
       {/* HEADER */}
-      <div className="text-center mb-10">
-        <h1 className="text-3xl md:text-5xl font-black text-[#010221]">
-          Report Center
-        </h1>
+      <div>
+        <h1 className="text-xl font-bold text-[#010221] sm:text-2xl">Reports</h1>
       </div>
 
+      {/* IDLE */}
       {step === "idle" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+        <div className="flex flex-col items-center justify-start pt-4 md:pt-12 flex-1">
 
-          {reports.map((r) => {
-            const Icon = r.icon;
+          <div className="text-center mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#010221]">
+              What report do you want to create?
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">
+              Choose an option for your report
+            </p>
+          </div>
 
-            return (
-              <button
-                key={r.value}
-                onClick={() => {
-                  setSelectedReport(r.value);
-                  setStep("calendar");
-                }}
-                className="bg-white rounded-3xl p-6 md:p-8 border hover:shadow-xl transition text-left"
-              >
-                <div className="flex items-center gap-4">
-
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${r.bg}`}>
-                    <Icon className={r.color} />
-                  </div>
-
-                  <div>
-                    <h2 className="text-xl md:text-2xl font-bold text-[#010221]">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 w-full max-w-xl">
+            <div className="grid grid-cols-2 gap-4">
+              {reports.map((r) => {
+                const Icon = r.icon;
+                return (
+                  <button
+                    key={r.value}
+                    onClick={() => {
+                      setSelectedReport(r.value);
+                      setStep("calendar");
+                    }}
+                    className={`flex items-center gap-4 px-5 py-4 rounded-2xl border ${r.border} bg-white ${r.hover} transition-all duration-200 cursor-pointer group`}
+                  >
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${r.bg} shrink-0`}>
+                      <Icon size={20} className={r.color} />
+                    </div>
+                    <span className="text-base font-semibold text-[#010221]">
                       {r.name}
-                    </h2>
-                    <p className="text-gray-500 text-sm">
-                      Select report
-                    </p>
-                  </div>
-
-                </div>
-              </button>
-            );
-          })}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
         </div>
       )}
 
-      {/* ================= CALENDAR FIX ================= */}
+      {/* CALENDAR MODAL */}
       {step === "calendar" && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-3xl w-full max-w-3xl shadow-xl my-8">
 
-          <div className="bg-white rounded-3xl p-6 w-full max-w-3xl shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between px-7 pt-6 pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-[#010221]">Select date range</h2>
+                <p className="text-gray-400 text-xs mt-0.5 capitalize">
+                  {selectedReport} report period
+                </p>
+              </div>
+              <button
+                onClick={closeModal}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 transition cursor-pointer"
+              >
+                <X size={15} className="text-gray-500" />
+              </button>
+            </div>
 
-            <h2 className="text-xl md:text-2xl font-bold mb-4">
-              Select date range
-            </h2>
+            {/* Divider */}
+            <div className="h-px bg-gray-100 mx-7" />
 
-            <div className="overflow-x-auto flex justify-center">
-
-              <div className="border rounded-2xl p-4 overflow-auto">
-
+            {/* Calendar */}
+            <div className="px-7 py-5">
+              <div className="overflow-x-auto flex justify-center">
                 <Calendar
                   mode="range"
                   selected={date}
                   onSelect={setDate}
                   numberOfMonths={2}
                   className="mx-auto"
+                  required={false}
+                  disabled={{ after: new Date() }}
                 />
-
               </div>
 
+              {date?.from && date?.to && (
+                <div className="mt-4 flex items-center justify-center gap-2 bg-gray-50 rounded-2xl px-4 py-2.5">
+                  <span className="text-xs text-gray-400">From</span>
+                  <span className="text-xs font-semibold text-[#010221]">{format(date.from, "PPP")}</span>
+                  <span className="text-xs text-gray-300">→</span>
+                  <span className="text-xs font-semibold text-[#010221]">{format(date.to, "PPP")}</span>
+                </div>
+              )}
             </div>
 
-            {date.from && date.to && (
-              <p className="text-sm text-gray-600 mt-3">
-                From <b>{format(date.from, "PPP")}</b> to{" "}
-                <b>{format(date.to, "PPP")}</b>
-              </p>
-            )}
-
-            <div className="flex gap-3 mt-5">
-
-              <Button
-                className="flex-1 bg-gray-200 text-black"
-                onClick={() => setStep("idle")}
+            {/* Footer */}
+            <div className="flex gap-3 px-7 pb-7">
+              <button
+                className="flex-1 py-3 rounded-2xl bg-gray-100 text-[#010221] text-sm font-medium hover:bg-gray-200 transition cursor-pointer"
+                onClick={closeModal}
               >
                 Cancel
-              </Button>
-
-              <Button
-                className="flex-1 bg-[#010221] text-white"
+              </button>
+              <button
+                className="flex-1 py-3 rounded-2xl bg-[#010221] text-white text-sm font-medium hover:bg-[#1b1d42] transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 onClick={generateReport}
-                disabled={!date.from || !date.to}
+                disabled={!date?.from || !date?.to}
               >
-                Create
-              </Button>
-
+                Generate Report
+              </button>
             </div>
 
           </div>
-
         </div>
       )}
 
-      {/* ================= LOADING ================= */}
+      {/* LOADING MODAL */}
       {step === "loading" && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-          <div className="bg-white p-8 rounded-3xl">
-            <div className="w-12 h-12 border-4 border-[#010221] border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="mt-4 text-center">Generating...</p>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+          <div className="bg-white px-12 py-10 rounded-3xl shadow-xl flex flex-col items-center gap-5">
+            <div className="w-11 h-11 border-[3px] border-[#010221] border-t-transparent rounded-full animate-spin" />
+            <div className="text-center">
+              <p className="text-sm font-semibold text-[#010221]">Generating your report</p>
+              <p className="text-xs text-gray-400 mt-1">This may take a few seconds...</p>
+            </div>
           </div>
         </div>
       )}
 
+      {/* DONE MODAL */}
       {step === "done" && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 z-50">
+          <div className="bg-white rounded-3xl w-full max-w-sm shadow-xl overflow-hidden">
 
-          <div className="bg-white p-6 rounded-3xl w-full max-w-sm text-center">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={18} className="text-green-500" />
+                <h2 className="text-base font-bold text-[#010221]">Report ready</h2>
+              </div>
+              <button
+                onClick={closeModal}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition cursor-pointer"
+              >
+                <X size={15} className="text-gray-500" />
+              </button>
+            </div>
 
-            <h2 className="text-xl font-bold mb-4">
-              Report ready
-            </h2>
+            <div className="h-px bg-gray-100 mx-6" />
 
-            {/* PDF */}
-            <a
-              href={files.pdf}
-              download
-              className="block bg-[#010221] text-white py-3 rounded-xl mb-3"
-            >
-              Download PDF
-            </a>
+            <div className="p-6 flex flex-col gap-3">
 
-            {/* EXCEL */}
-            <a
-              href={files.excel}
-              download
-              className="block bg-gray-200 py-3 rounded-xl"
-            >
-              Download Excel
-            </a>
+              <a
+                href={files.pdf}
+                download={`${selectedReport}_report.pdf`}
+                className="flex items-center gap-4 bg-[#010221] text-white px-4 py-3.5 rounded-2xl hover:opacity-90 transition cursor-pointer"
+              >
+                <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                  <FileText size={16} />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold">Download PDF</p>
+                  <p className="text-xs text-white/50">{selectedReport}_report.pdf</p>
+                </div>
+              </a>
 
-            <Button
-              className="w-full mt-4"
-              onClick={() => setStep("idle")}
-            >
-              Close
-            </Button>
+              <a
+                href={files.excel}
+                download={`${selectedReport}_report.xlsx`}
+                className="flex items-center gap-4 bg-gray-50 border border-gray-100 text-[#010221] px-4 py-3.5 rounded-2xl hover:bg-gray-100 transition cursor-pointer"
+              >
+                <div className="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center shrink-0">
+                  <Sheet size={16} className="text-green-500" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold">Download Excel</p>
+                  <p className="text-xs text-gray-400">{selectedReport}_report.xlsx</p>
+                </div>
+              </a>
 
+              <button
+                onClick={closeModal}
+                className="text-xs text-gray-400 hover:text-gray-600 transition mt-1 cursor-pointer py-1"
+              >
+                Close
+              </button>
+
+            </div>
           </div>
-
         </div>
       )}
 

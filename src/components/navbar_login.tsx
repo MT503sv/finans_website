@@ -18,7 +18,7 @@ export default function NavbarLogin() {
     "hover:underline hover:decoration-2 hover:underline-offset-4 hover:decoration-[#010221]";
 
   return (
-    <nav className="bg-white">
+    <nav className="bg-white sticky top-0 z-40">
       <div className="flex items-center justify-between px-6">
         <div className="shrink-0 flex items-center gap-3 mx-2 mb-1">
           <Link href="/" className="relative h-20 w-30 block">

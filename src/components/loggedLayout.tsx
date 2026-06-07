@@ -45,7 +45,7 @@ export default function LoggedLayout({ children }: { children: React.ReactNode }
 
   return (
     <SidebarProvider open={open} onOpenChange={setOpen}>
-      {/* Sidebar solo en desktop */}
+      {/* Sidebar for desktop only */}
       <div className="hidden lg:block">
         <MemoSidebar
           onMouseEnter={handleMouseEnter}
@@ -56,13 +56,13 @@ export default function LoggedLayout({ children }: { children: React.ReactNode }
       </div>
 
       <SidebarInset>
-        {/* Navbar desktop */}
-        <div className="hidden lg:block">
+        {/* Desktop navbar */}
+        <div className="hidden lg:block sticky top-0 z-40">
           <MemoNavbar />
         </div>
 
-        {/* Navbar móvil con hamburguesa */}
-        <div className="lg:hidden">
+        {/* Mobile navbar with hamburger menu */}
+        <div className="lg:hidden sticky top-0 z-40">
           <MobileNav />
         </div>
 
