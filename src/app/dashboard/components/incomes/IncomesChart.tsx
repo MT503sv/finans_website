@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/chart";
 
 const chartConfig = {
-  income: { label: "Income", color: "#bfdbfe" },
+  total: { label: "Income + Sales", color: "#bfdbfe" },
 };
 
-type DataPoint = { label: string; income: number };
+type DataPoint = { label: string; income: number; sales: number };
 
 type Props = {
   monthlyData: DataPoint[];
@@ -23,7 +23,14 @@ export function IncomesChart({ monthlyData, weeklyData }: Props) {
   const [view, setView] = useState<"monthly" | "weekly">("monthly");
 
   const data = view === "monthly" ? monthlyData : weeklyData;
-  const total = data.reduce((sum, d) => sum + d.income, 0);
+  
+  // Combina income + sales
+  const chartData = data.map(d => ({
+    label: d.label,
+    total: d.income + d.sales,
+  }));
+  
+  const total = chartData.reduce((sum, d) => sum + d.total, 0);
   const fmt = (n: number) => "$" + n.toLocaleString("en-US");
 
   return (
@@ -63,7 +70,7 @@ export function IncomesChart({ monthlyData, weeklyData }: Props) {
           className="flex-1 h-64 sm:h-80 w-full"
         >
           <BarChart
-            data={data}
+            data={chartData}
             margin={{ top: 10, right: 4, left: 0, bottom: 0 }}
           >
             <CartesianGrid vertical={false} stroke="#f0f0f0" />
@@ -85,8 +92,8 @@ export function IncomesChart({ monthlyData, weeklyData }: Props) {
             />
             <ChartTooltip content={<ChartTooltipContent />} />
             <Bar
-              dataKey="income"
-              fill="var(--color-income)"
+              dataKey="total"
+              fill="var(--color-total)"
               radius={[4, 4, 0, 0]}
             />
           </BarChart>

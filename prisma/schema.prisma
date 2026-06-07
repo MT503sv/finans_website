@@ -100,7 +100,7 @@ model Financial_goals {
   due_date      DateTime @db.Date
   target_amount Float?   @db.Real
   is_completed  Boolean
-  user          User     @relation(fields: [user_id], references: [id])
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Debts {
@@ -112,5 +112,5 @@ model Debts {
   user_id   String
   due_date  DateTime @db.Date
   is_paid   Boolean
-  user      User     @relation(fields: [user_id], references: [id])
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }

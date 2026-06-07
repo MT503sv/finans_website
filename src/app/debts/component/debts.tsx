@@ -189,8 +189,15 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
 
   const handleDelete = async (id: number) => {
     await deleteDebt(id);
-    setDebts(prev => prev.filter(d => d.id !== id));
+    const newDebts = debts.filter(d => d.id !== id);
+    setDebts(newDebts);
     setOpenMenu(null);
+    
+    // Ajusta la página si es necesario
+    const newTotalPages = Math.ceil(newDebts.length / itemsPerPage);
+    if (currentPage > newTotalPages && newTotalPages > 0) {
+      setCurrentPage(newTotalPages);
+    }
   };
 
   const handleClearAll = async () => {

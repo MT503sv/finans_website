@@ -6,6 +6,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 import NavbarWrapper from "@/components/NavbarWrapper";
 import LoggedLayout from "@/components/loggedLayout"
+import { UserSync } from "@/components/UserSync";
 import { headers } from "next/headers";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -30,6 +31,7 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider afterSignOutUrl="/">
+      <UserSync />
       <html
         lang="en"
         className={cn(

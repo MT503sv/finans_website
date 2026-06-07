@@ -1,146 +1,104 @@
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { DashboardCards } from "./DashboardCards";
 
 export default async function Data() {
+  const { userId } = await auth();
+  
+  if (!userId) return <div>Not authenticated</div>;
+
   const now = new Date();
 
-  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const thisMonthEnd   = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-  
-  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastMonthEnd   = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
-  
+  // ── Rangos ────────────────────────────────────────────────────
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
   const todayEnd   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 
+  const weekDay       = now.getDay();
+  const weekStart     = new Date(now); weekStart.setDate(now.getDate() - weekDay); weekStart.setHours(0, 0, 0, 0);
+  const weekEnd       = new Date(now); weekEnd.setDate(weekStart.getDate() + 6);   weekEnd.setHours(23, 59, 59, 999);
+  const prevWeekStart = new Date(weekStart); prevWeekStart.setDate(weekStart.getDate() - 7);
+  const prevWeekEnd   = new Date(weekEnd);   prevWeekEnd.setDate(weekEnd.getDate() - 7);
+
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thisMonthEnd   = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastMonthEnd   = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+  // ── Queries ───────────────────────────────────────────────────
   const [
-    thisMonthIncomes,
-    lastMonthIncomes,
-    thisMonthExpenses,
-    lastMonthExpenses,
-    todaySales,
-    thisMonthSales,
-    lastMonthSales,
+    todayIncomes, todayExpenses, todaySalesRaw,
+    weekIncomes, prevWeekIncomes, weekExpenses, prevWeekExpenses, weekSalesRaw, prevWeekSalesRaw,
+    thisMonthIncomes, lastMonthIncomes, thisMonthExpenses, lastMonthExpenses, thisMonthSalesRaw, lastMonthSalesRaw,
   ] = await Promise.all([
-    prisma.incomes.aggregate({
-      _sum: { amount: true },
-      where: { date: { gte: thisMonthStart, lte: thisMonthEnd } },
-    }),
-    prisma.incomes.aggregate({
-      _sum: { amount: true },
-      where: { date: { gte: lastMonthStart, lte: lastMonthEnd } },
-    }),
-    prisma.outflows.aggregate({
-      _sum: { amount: true },
-      where: { date: { gte: thisMonthStart, lte: thisMonthEnd } },
-    }),
-    prisma.outflows.aggregate({
-      _sum: { amount: true },
-      where: { date: { gte: lastMonthStart, lte: lastMonthEnd } },
-    }),
-    prisma.sales.findMany({
-      where: { date: { gte: todayStart, lte: todayEnd } },
-      select: { quantity_of_sold_items: true, price_of_item: true },
-    }),
-    // Sales del mes actual
-    prisma.sales.findMany({
-      where: { date: { gte: thisMonthStart, lte: thisMonthEnd } },
-      select: { quantity_of_sold_items: true, price_of_item: true },
-    }),
-    // Sales del mes pasado
-    prisma.sales.findMany({
-      where: { date: { gte: lastMonthStart, lte: lastMonthEnd } },
-      select: { quantity_of_sold_items: true, price_of_item: true },
-    }),
+    prisma.incomes.aggregate({ _sum: { amount: true }, where: { user_id: userId, date: { gte: todayStart, lte: todayEnd } } }),
+    prisma.outflows.aggregate({ _sum: { amount: true }, where: { user_id: userId, date: { gte: todayStart, lte: todayEnd } } }),
+    prisma.sales.findMany({ where: { user_id: userId, date: { gte: todayStart, lte: todayEnd } }, select: { quantity_of_sold_items: true, price_of_item: true } }),
+
+    prisma.incomes.aggregate({ _sum: { amount: true }, where: { user_id: userId, date: { gte: weekStart, lte: weekEnd } } }),
+    prisma.incomes.aggregate({ _sum: { amount: true }, where: { user_id: userId, date: { gte: prevWeekStart, lte: prevWeekEnd } } }),
+    prisma.outflows.aggregate({ _sum: { amount: true }, where: { user_id: userId, date: { gte: weekStart, lte: weekEnd } } }),
+    prisma.outflows.aggregate({ _sum: { amount: true }, where: { user_id: userId, date: { gte: prevWeekStart, lte: prevWeekEnd } } }),
+    prisma.sales.findMany({ where: { user_id: userId, date: { gte: weekStart, lte: weekEnd } }, select: { quantity_of_sold_items: true, price_of_item: true } }),
+    prisma.sales.findMany({ where: { user_id: userId, date: { gte: prevWeekStart, lte: prevWeekEnd } }, select: { quantity_of_sold_items: true, price_of_item: true } }),
+
+    prisma.incomes.aggregate({ _sum: { amount: true }, where: { user_id: userId, date: { gte: thisMonthStart, lte: thisMonthEnd } } }),
+    prisma.incomes.aggregate({ _sum: { amount: true }, where: { user_id: userId, date: { gte: lastMonthStart, lte: lastMonthEnd } } }),
+    prisma.outflows.aggregate({ _sum: { amount: true }, where: { user_id: userId, date: { gte: thisMonthStart, lte: thisMonthEnd } } }),
+    prisma.outflows.aggregate({ _sum: { amount: true }, where: { user_id: userId, date: { gte: lastMonthStart, lte: lastMonthEnd } } }),
+    prisma.sales.findMany({ where: { user_id: userId, date: { gte: thisMonthStart, lte: thisMonthEnd } }, select: { quantity_of_sold_items: true, price_of_item: true } }),
+    prisma.sales.findMany({ where: { user_id: userId, date: { gte: lastMonthStart, lte: lastMonthEnd } }, select: { quantity_of_sold_items: true, price_of_item: true } }),
   ]);
 
-  const totalSalesToday = prisma.sales.count({
-    where: {}
-  });
+  // ── Helpers ───────────────────────────────────────────────────
+  const sumSales = (s: { quantity_of_sold_items: number | null; price_of_item: number | null }[]) =>
+    s.reduce((acc, x) => acc + (x.quantity_of_sold_items ?? 0) * (x.price_of_item ?? 0), 0);
 
-  
-  const totalSalesThis = thisMonthSales.reduce(
-    (sum, s) => sum + (s.quantity_of_sold_items ?? 0) * (s.price_of_item ?? 0), 0
-  );
-  const totalSalesLast = lastMonthSales.reduce(
-    (sum, s) => sum + (s.quantity_of_sold_items ?? 0) * (s.price_of_item ?? 0), 0
-  );
+  const pct = (current: number, prev: number) =>
+    prev > 0 ? Math.round(((current - prev) / prev) * 100) : null;
 
-  // Ingresos + ventas
-  const totalIncomeThis  = (thisMonthIncomes._sum.amount ?? 0) + totalSalesThis;
-  const totalIncomeLast  = (lastMonthIncomes._sum.amount ?? 0) + totalSalesLast;
-  const totalExpenseThis = thisMonthExpenses._sum.amount ?? 0;
-  const totalExpenseLast = lastMonthExpenses._sum.amount ?? 0;
-  const totalProfit      = totalIncomeThis - totalExpenseThis;
+  // ── Cálculos ──────────────────────────────────────────────────
+  const todayIncome  = (todayIncomes._sum.amount ?? 0) + sumSales(todaySalesRaw);
+  const todayExpense = todayExpenses._sum.amount ?? 0;
 
-  const incomePct  = totalIncomeLast  > 0 ? Math.round(((totalIncomeThis  - totalIncomeLast)  / totalIncomeLast)  * 100) : null;
-  const expensePct = totalExpenseLast > 0 ? Math.round(((totalExpenseThis - totalExpenseLast) / totalExpenseLast) * 100) : null;
+  const weekIncome      = (weekIncomes._sum.amount ?? 0) + sumSales(weekSalesRaw);
+  const prevWeekIncome  = (prevWeekIncomes._sum.amount ?? 0) + sumSales(prevWeekSalesRaw);
+  const weekExpense     = weekExpenses._sum.amount ?? 0;
+  const prevWeekExpense = prevWeekExpenses._sum.amount ?? 0;
 
-  const fmt = (n: number) => "$" + n.toLocaleString("en-US");
-
-  const pctLabel = (pct: number | null, inverse = false) => {
-    if (pct === null) return <span className="text-xs text-gray-400">No data last month</span>;
-    const positive = inverse ? pct < 0 : pct >= 0;
-    return (
-      <span className={`text-xs font-medium ${positive ? "text-green-500" : "text-red-500"}`}>
-        {pct >= 0 ? "+" : ""}{pct}% vs last month
-      </span>
-    );
-  };
+  const monthIncome  = (thisMonthIncomes._sum.amount ?? 0) + sumSales(thisMonthSalesRaw);
+  const lastIncome   = (lastMonthIncomes._sum.amount ?? 0) + sumSales(lastMonthSalesRaw);
+  const monthExpense = thisMonthExpenses._sum.amount ?? 0;
+  const lastExpense  = lastMonthExpenses._sum.amount ?? 0;
 
   return (
-    <div className="text-black font-sans">
-      <div className="mb-4 mt-3">
-        <h1 className="text-2xl font-bold text-[#010221]">Dashboard</h1>
-      </div>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
-
-        <div className="bg-white shadow-lg rounded-lg p-5">
-          <h2 className="font-semibold text-xs text-gray-500">Sales today</h2>
-          <h2 className="font-bold text-2xl mt-1">{(totalSalesToday)}</h2>
-        </div>
-
-        <div className="bg-white shadow-lg rounded-lg p-4">
-          <h2 className="font-semibold text-xs text-gray-500">Income</h2>
-          <h2 className="font-bold text-2xl mt-1">{fmt(totalIncomeThis)}</h2>
-          <div className="mt-2">
-            {pctLabel(incomePct)}
-            <div className="mt-1 h-1 bg-gray-100 rounded-full">
-              <div
-                className="h-1 rounded-full"
-                style={{
-                  width: `${Math.min(Math.abs(incomePct ?? 0), 100)}%`,
-                  backgroundColor: (incomePct ?? 0) >= 0 ? "#22c55e" : "#ef4444",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white shadow-lg rounded-lg p-4">
-          <h2 className="font-semibold text-xs text-gray-500">Expenses</h2>
-          <h2 className="font-bold text-2xl mt-1">{fmt(totalExpenseThis)}</h2>
-          <div className="mt-2">
-            {pctLabel(expensePct, true)}
-            <div className="mt-1 h-1 bg-gray-100 rounded-full">
-              <div
-                className="h-1 rounded-full"
-                style={{
-                  width: `${Math.min(Math.abs(expensePct ?? 0), 100)}%`,
-                  backgroundColor: (expensePct ?? 0) <= 0 ? "#22c55e" : "#ef4444",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-slate-950 shadow-lg rounded-lg p-4">
-          <h2 className="font-bold text-xs text-slate-400">Profit</h2>
-          <h2 className="font-bold text-2xl text-white mt-1">{fmt(totalProfit)}</h2>
-          <p className="text-xs text-slate-400 mt-2">This month</p>
-        </div>
-
-      </div>
-    </div>
+    <DashboardCards
+      today={{
+        totalIncome:  todayIncome,
+        totalExpense: todayExpense,
+        totalProfit:  todayIncome - todayExpense,
+        totalSales:   todaySalesRaw.length,
+        incomePct:    null,
+        expensePct:   null,
+        salesPct:     null,
+      }}
+      weekly={{
+        totalIncome:  weekIncome,
+        totalExpense: weekExpense,
+        totalProfit:  weekIncome - weekExpense,
+        totalSales:   weekSalesRaw.length,
+        incomePct:    pct(weekIncome, prevWeekIncome),
+        expensePct:   pct(weekExpense, prevWeekExpense),
+        salesPct:     weekSalesRaw.length - prevWeekSalesRaw.length,
+      }}
+      monthly={{
+        totalIncome:  monthIncome,
+        totalExpense: monthExpense,
+        totalProfit:  monthIncome - monthExpense,
+        totalSales:   thisMonthSalesRaw.length,
+        incomePct:    pct(monthIncome, lastIncome),
+        expensePct:   pct(monthExpense, lastExpense),
+        salesPct:     thisMonthSalesRaw.length - lastMonthSalesRaw.length,
+      }}
+    />
   );
 }

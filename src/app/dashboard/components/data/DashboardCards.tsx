@@ -10,6 +10,7 @@ export type PeriodData = {
     totalSales: number;
     incomePct: number | null;
     expensePct: number | null;
+    salesPct: number | null;
 };
 
 type Props = {
@@ -25,9 +26,21 @@ export function DashboardCards({ today, weekly, monthly }: Props) {
 
     const fmt = (n: number) => "$" + n.toLocaleString("en-US");
 
-    const pctLabel = (pct: number | null, inverse = false) => {
+    const pctLabel = (pct: number | null, inverse = false, isSalesDiff = false) => {
         if (pct === null)
             return <span className="text-xs text-gray-400">No prev data</span>;
+        
+        // Para diferencia de ventas
+        if (isSalesDiff) {
+            const positive = pct >= 0;
+            return (
+                <span className={`text-xs font-medium ${positive ? "text-green-500" : "text-red-500"}`}>
+                    {pct >= 0 ? "+" : ""}{pct} ventas vs prev period
+                </span>
+            );
+        }
+        
+        // Para porcentajes
         const positive = inverse ? pct < 0 : pct >= 0;
         return (
             <span className={`text-xs font-medium ${positive ? "text-green-500" : "text-red-500"}`}>
@@ -90,6 +103,18 @@ export function DashboardCards({ today, weekly, monthly }: Props) {
                     <div className="animated-border-inner p-5">
                         <h2 className="font-semibold text-xs text-gray-500">Sales</h2>
                         <h2 className="font-bold text-2xl mt-1">{data.totalSales}</h2>
+                        <div className="mt-2">
+                            {pctLabel(data.salesPct, false, true)}
+                            <div className="mt-1 h-1 bg-gray-100 rounded-full">
+                                <div
+                                    className="h-1 rounded-full"
+                                    style={{
+                                        width: `${Math.min(Math.abs(data.salesPct ?? 0), 100)}%`,
+                                        backgroundColor: (data.salesPct ?? 0) >= 0 ? "#22c55e" : "#ef4444",
+                                    }}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
