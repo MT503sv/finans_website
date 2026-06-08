@@ -128,6 +128,15 @@ export default function Expenses({ initialExpenses }: { initialExpenses: Expense
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // ✅ Fix: lee la fecha en UTC para evitar desfase por timezone (ej. El Salvador UTC-6)
+  const formatExpenseDate = (date: Date) => {
+    const d = new Date(date);
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth() + 1;
+    const day = d.getUTCDate();
+    return `${month}/${day}/${year}`;
+  };
+
   const handleAmountChange = (val: string) => {
     if (val === "" || /^\d+(\.\d{0,2})?$/.test(val)) setAmount(val);
   };
@@ -219,7 +228,6 @@ export default function Expenses({ initialExpenses }: { initialExpenses: Expense
       {/* Add Expense Form */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mb-5 sm:p-6">
 
-        {/* 1 col → 2 col → 4 col grid, matching Incomes layout */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
           {/* Expense name */}
@@ -362,8 +370,9 @@ export default function Expenses({ initialExpenses }: { initialExpenses: Expense
               >
                 <div className="px-2">
                   <span className="text-sm text-[#010221] block">{expense.outflow_type}</span>
+                  {/* ✅ Mobile: fecha corregida sin desfase de timezone */}
                   <span className="text-xs text-red-400 font-medium block xs:hidden">
-                    ${expense.amount.toFixed(2)} · {new Date(expense.date).toLocaleDateString()}
+                    ${expense.amount.toFixed(2)} · {formatExpenseDate(expense.date)}
                   </span>
                 </div>
 
@@ -375,8 +384,9 @@ export default function Expenses({ initialExpenses }: { initialExpenses: Expense
                   ${expense.amount.toFixed(2)}
                 </span>
 
+                {/* ✅ Date: fecha corregida sin desfase de timezone */}
                 <span className="hidden sm:block text-sm text-gray-600 px-2">
-                  {new Date(expense.date).toLocaleDateString()}
+                  {formatExpenseDate(expense.date)}
                 </span>
 
                 <div className="relative flex justify-center" ref={openMenu === String(expense.id) ? menuRef : undefined}>

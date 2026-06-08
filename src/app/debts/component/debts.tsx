@@ -122,6 +122,15 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // ✅ Fix: lee la fecha en UTC para evitar desfase por timezone (ej. El Salvador UTC-6)
+  const formatDebtDate = (date: Date) => {
+    const d = new Date(date);
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth() + 1;
+    const day = d.getUTCDate();
+    return `${month}/${day}/${year}`;
+  };
+
   const handleAmountChange = (val: string) => {
     if (val === "" || /^\d+(\.\d{0,2})?$/.test(val)) setAmount(val);
   };
@@ -192,7 +201,7 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
     const newDebts = debts.filter(d => d.id !== id);
     setDebts(newDebts);
     setOpenMenu(null);
-    
+
     // Ajusta la página si es necesario
     const newTotalPages = Math.ceil(newDebts.length / itemsPerPage);
     if (currentPage > newTotalPages && newTotalPages > 0) {
@@ -218,12 +227,6 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
 
       {/* Add Debt Form */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mb-5 sm:p-6">
-        {/*
-          Responsive grid:
-          - Mobile:  1 column (all fields stacked)
-          - Tablet:  2 columns (Creditor + Amount | Due Date spans full)
-          - Desktop: 3 columns (all fields side by side)
-        */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
           <div>
@@ -252,7 +255,6 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
             </div>
           </div>
 
-          {/* Due Date: full width on tablet (spans 2 cols), normal on desktop */}
           <div className="relative">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Due Date</label>
             <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#010221]/20 focus-within:border-[#010221] transition-all">
@@ -309,11 +311,6 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
         <p className="text-xs text-gray-400 mt-0.5 mb-5">All your recorded debts.</p>
 
         <div className="w-full">
-          {/*
-            Table header:
-            - Mobile:  Creditor | actions (Amount + Date hidden)
-            - Tablet+: Creditor | Amount | Due Date | actions
-          */}
           <div className="grid grid-cols-[1fr_40px] xs:grid-cols-[1fr_1fr_40px] sm:grid-cols-[1fr_1fr_1fr_40px] border-b border-gray-200 pb-2 mb-1">
             <span className="text-xs font-semibold text-[#010221] px-2">Creditor</span>
             <span className="hidden xs:block sm:block text-xs font-semibold text-[#010221] px-2">Amount</span>
@@ -354,9 +351,9 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
                 {/* Creditor — on mobile also shows amount + date stacked below */}
                 <div className="px-2">
                   <span className="text-sm text-[#010221] block">{debt.debt_bank}</span>
-                  {/* Visible only on mobile */}
+                  {/* ✅ Mobile: fecha corregida sin desfase de timezone */}
                   <span className="text-xs text-red-400 font-medium block xs:hidden">
-                    ${debt.amount.toFixed(2)} · {new Date(debt.due_date).toLocaleDateString()}
+                    ${debt.amount.toFixed(2)} · {formatDebtDate(debt.due_date)}
                   </span>
                 </div>
 
@@ -365,9 +362,9 @@ export default function Debts({ initialDebts }: { initialDebts: Debt[] }) {
                   ${debt.amount.toFixed(2)}
                 </span>
 
-                {/* Due Date — hidden on mobile and xs, visible sm+ */}
+                {/* ✅ Due Date: fecha corregida sin desfase de timezone */}
                 <span className="hidden sm:block text-sm text-gray-600 px-2">
-                  {new Date(debt.due_date).toLocaleDateString()}
+                  {formatDebtDate(debt.due_date)}
                 </span>
 
                 <div className="relative flex justify-center" ref={openMenu === String(debt.id) ? menuRef : undefined}>

@@ -140,6 +140,15 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // ✅ Fix: lee la fecha en UTC para evitar desfase por timezone (ej. El Salvador UTC-6)
+  const formatIncomeDate = (date: Date) => {
+    const d = new Date(date);
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth() + 1;
+    const day = d.getUTCDate();
+    return `${month}/${day}/${year}`;
+  };
+
   const handleAmountChange = (val: string) => {
     if (val === "" || /^\d+(\.\d{0,2})?$/.test(val)) setAmount(val);
   };
@@ -229,12 +238,6 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
 
       {/* Add Income Form */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mb-5 sm:p-6">
-        {/*
-          Responsive grid:
-          - Mobile:  1 column (all fields stacked)
-          - Tablet:  2 columns
-          - Desktop: 4 columns (all side by side)
-        */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
           <div>
@@ -268,7 +271,6 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
             </div>
           </div>
 
-          {/* Date received: full width on tablet, normal on desktop */}
           <div className="relative">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Date received</label>
             <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#010221]/20 focus-within:border-[#010221] transition-all">
@@ -338,13 +340,6 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
         <p className="text-xs text-gray-400 mt-0.5 mb-5">History of all your added income.</p>
 
         <div className="w-full">
-          {/*
-            Table columns by breakpoint:
-            - Mobile:       Type | actions           (amount + date + desc hidden)
-            - xs (475px+):  Type | Amount | actions
-            - sm (640px+):  Type | Amount | Date | actions
-            - lg (1024px+): Type | Description | Amount | Date | actions
-          */}
           <div className="grid grid-cols-[1fr_40px] xs:grid-cols-[1fr_1fr_40px] sm:grid-cols-[1fr_1fr_1fr_40px] lg:grid-cols-[1fr_1.5fr_1fr_1fr_40px] border-b border-gray-200 pb-2 mb-1">
             <span className="text-xs font-semibold text-[#010221] px-2">Type</span>
             <span className="hidden lg:block text-xs font-semibold text-[#010221] px-2">Description</span>
@@ -383,28 +378,25 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
                 key={income.id}
                 className="grid grid-cols-[1fr_40px] xs:grid-cols-[1fr_1fr_40px] sm:grid-cols-[1fr_1fr_1fr_40px] lg:grid-cols-[1fr_1.5fr_1fr_1fr_40px] py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors rounded-lg items-center"
               >
-                {/* Type — on mobile also shows amount + date stacked */}
                 <div className="px-2">
                   <span className="text-sm text-[#010221] block">{income.income_type}</span>
-                  {/* Only visible on mobile */}
+                  {/* ✅ Mobile: fecha corregida sin desfase de timezone */}
                   <span className="text-xs text-green-500 font-medium block xs:hidden">
-                    ${income.amount.toFixed(2)} · {new Date(income.date).toLocaleDateString()}
+                    ${income.amount.toFixed(2)} · {formatIncomeDate(income.date)}
                   </span>
                 </div>
 
-                {/* Description — only on lg+ */}
                 <span className="hidden lg:block text-sm text-gray-500 px-2 truncate">
                   {income.description || "---"}
                 </span>
 
-                {/* Amount — hidden on mobile, visible xs+ */}
                 <span className="hidden xs:block text-sm text-green-500 font-medium px-2">
                   ${income.amount.toFixed(2)}
                 </span>
 
-                {/* Date — hidden on mobile and xs, visible sm+ */}
+                {/* ✅ Date: fecha corregida sin desfase de timezone */}
                 <span className="hidden sm:block text-sm text-gray-600 px-2">
-                  {new Date(income.date).toLocaleDateString()}
+                  {formatIncomeDate(income.date)}
                 </span>
 
                 <div className="relative flex justify-center" ref={openMenu === String(income.id) ? menuRef : undefined}>

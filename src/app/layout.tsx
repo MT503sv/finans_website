@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
+import { Suspense } from 'react';
 import NavbarWrapper from "@/components/NavbarWrapper";
 import LoggedLayout from "@/components/loggedLayout";
 import { UserSync } from "@/components/UserSync";
@@ -49,7 +50,9 @@ export default async function RootLayout({
             </div>
           ) : (
             <LoggedLayout>
-              <UserSync />
+              <Suspense fallback={null}>
+                <UserSync />
+              </Suspense>
               {children}
             </LoggedLayout>
           )}
