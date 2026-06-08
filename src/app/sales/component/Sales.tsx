@@ -129,6 +129,15 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // ✅ Fix: lee la fecha en UTC para evitar desfase por timezone (ej. El Salvador UTC-6)
+  const formatSaleDate = (date: Date) => {
+    const d = new Date(date);
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth() + 1;
+    const day = d.getUTCDate();
+    return `${month}/${day}/${year}`;
+  };
+
   const handleQuantityChange = (val: string) => {
     if (val === "" || /^\d+$/.test(val)) setQuantity(val);
   };
@@ -225,12 +234,6 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
 
       {/* Add Sale Form */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mb-5 sm:p-6">
-        {/*
-          Responsive grid:
-          - Mobile:  1 column (all fields stacked)
-          - Tablet:  2 columns
-          - Desktop: 4 columns (Product | Quantity | Unit Price | Date)
-        */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
           <div>
@@ -271,7 +274,6 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
             </div>
           </div>
 
-          {/* Date: full width on tablet (spans 2), normal on desktop */}
           <div className="relative">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Date</label>
             <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#010221]/20 focus-within:border-[#010221] transition-all">
@@ -343,13 +345,6 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
         <p className="text-xs text-gray-400 mt-0.5 mb-5">All your recorded sales.</p>
 
         <div className="w-full">
-          {/*
-            Table columns by breakpoint:
-            - Mobile:       Product | actions               (all numeric cols hidden)
-            - xs (475px+):  Product | Total | actions
-            - sm (640px+):  Product | Qty | Unit Price | Total | actions
-            - lg (1024px+): Product | Qty | Unit Price | Total | Date | actions
-          */}
           <div className="grid grid-cols-[1fr_40px] xs:grid-cols-[1fr_1fr_40px] sm:grid-cols-[1.5fr_1fr_1fr_1fr_40px] lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr_40px] border-b border-gray-200 pb-2 mb-1">
             <span className="text-xs font-semibold text-[#010221] px-2">Product</span>
             <span className="hidden sm:block text-xs font-semibold text-[#010221] px-2">Quantity</span>
@@ -392,30 +387,30 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
                 {/* Product — on mobile also shows total + date stacked */}
                 <div className="px-2">
                   <span className="text-sm text-[#010221] block">{sale.item_sold}</span>
-                  {/* Only visible on mobile */}
+                  {/* ✅ Mobile: fecha corregida sin desfase de timezone */}
                   <span className="text-xs text-green-500 font-medium block xs:hidden">
-                    ${(sale.quantity_of_sold_items * sale.price_of_item).toFixed(2)} · {new Date(sale.date).toLocaleDateString()}
+                    ${(sale.quantity_of_sold_items * sale.price_of_item).toFixed(2)} · {formatSaleDate(sale.date)}
                   </span>
                 </div>
 
-                {/* Quantity — hidden on mobile and xs, visible sm+ */}
+                {/* Quantity */}
                 <span className="hidden sm:block text-sm text-gray-600 px-2">
                   {sale.quantity_of_sold_items}
                 </span>
 
-                {/* Unit Price — hidden on mobile and xs, visible sm+ */}
+                {/* Unit Price */}
                 <span className="hidden sm:block text-sm text-green-500 font-medium px-2">
                   ${sale.price_of_item.toFixed(2)}
                 </span>
 
-                {/* Total — hidden on mobile, visible xs+ */}
+                {/* Total */}
                 <span className="hidden xs:block text-sm text-green-500 font-medium px-2">
                   ${(sale.quantity_of_sold_items * sale.price_of_item).toFixed(2)}
                 </span>
 
-                {/* Date — hidden until lg */}
+                {/* ✅ Date: fecha corregida sin desfase de timezone */}
                 <span className="hidden lg:block text-sm text-gray-600 px-2">
-                  {new Date(sale.date).toLocaleDateString()}
+                  {formatSaleDate(sale.date)}
                 </span>
 
                 <div className="relative flex justify-center" ref={openMenu === String(sale.id) ? menuRef : undefined}>
