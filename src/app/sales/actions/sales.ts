@@ -18,22 +18,26 @@ export async function addSale(data: {
   product: string;
   quantity: number;
   unitPrice: number;
-  date: string;
+  date?: string; // opcional
 }) {
   const { userId } = await auth();
   if (!userId) throw new Error("Not authenticated");
 
-  // Parse "M/D/YYYY" and store at noon UTC to avoid timezone shifting the date
-  const [m, d, y] = data.date.split("/");
-  const dateUTC = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d), 12, 0, 0));
+  let dateUTC: Date;
+  if (data.date) {
+    const [m, d, y] = data.date.split("/");
+    dateUTC = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d), 12, 0, 0));
+  } else {
+    dateUTC = new Date(); // OCR usa fecha de hoy
+  }
 
   await prisma.sales.create({
     data: {
-      item_sold:              data.product,
+      item_sold: data.product,
       quantity_of_sold_items: data.quantity,
-      price_of_item:          data.unitPrice,
-      date:                   dateUTC,
-      user_id:                userId,
+      price_of_item: data.unitPrice,
+      date: dateUTC,
+      user_id: userId,
     },
   });
 

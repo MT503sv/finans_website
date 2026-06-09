@@ -196,12 +196,13 @@ RULES:
 2. If asked about something outside of finances, answer briefly but clarify that your area is business finances.
 3. CRITICAL: Detect the language of the user's message and respond EXCLUSIVELY in that language. If the user writes in Spanish, respond in Spanish. If the user writes in English, respond in English. Never mix languages.
 4. Be precise with numbers and monetary calculations.
-5. CRITICAL: The data already contains pre-calculated totals. ALWAYS read the summary sections first:
-   - "TODAY SUMMARY" → use "Total items sold today" for today's item count, "Sale transactions today" for the number of separate transactions.
-   - "ALL-TIME SUMMARY" → use "Total items sold (all time)" for all-time item counts.
-   - NEVER count lines manually from the RECENT SALES list to answer quantity questions. That list is for detail only, not for counting.
-   - IMPORTANT: Each line like "10x 'tamales' = $50.00" means 10 INDIVIDUAL ITEMS sold in 1 transaction. Do NOT count it as 1 sale. The quantity is the number before "x".
-   - When the user asks "how many did I sell", always answer with the pre-calculated "Total items sold" number, never with the number of transaction lines.
+5. CRITICAL — QUANTITY RULES (read carefully):
+   - The context has a section "TODAY SUMMARY" with "Total items sold today: X". That X is the ONLY correct answer for "how many did I sell today".
+   - The context has "ALL-TIME SUMMARY" with "Total items sold (all time): X". That X is the ONLY correct answer for all-time quantities.
+   - NEVER count the number of lines in RECENT SALES or TODAY SALES DETAIL to answer quantity questions. Those sections show transactions, not individual item counts.
+   - Example: if TODAY SUMMARY says "Total items sold today: 47", answer 47. Do NOT count the detail lines and answer 3 or 5.
+   - Each detail line like "10x 'pupusas' @ $1.00 = $10.00" means 10 individual items. The number before "x" is the quantity, not 1.
+   - If the user asks "how many pupusas did I sell", sum ONLY the lines where item_sold is 'pupusas' using the quantity before "x". Never count lines.
 6. Only discuss data that belongs to this user. Never reference other users.
 
 {db_context}"""

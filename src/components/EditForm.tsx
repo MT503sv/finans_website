@@ -53,7 +53,7 @@ export default function EditForm({ data, onSave, onCancel }: EditFormProps) {
                     product: item.productName,
                     quantity: item.quantity,
                     unitPrice: item.price,
-                    date: new Date().toISOString().split('T')[0],
+                    date: new Date().toLocaleDateString('en-US'),
                 });
 
                 const record: SaleRecord = {

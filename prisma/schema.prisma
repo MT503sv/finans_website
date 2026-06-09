@@ -20,7 +20,7 @@ model User {
   outflows        Outflows[]
   reports         Reports[]
   sales           Sales[]
-  debts           Debts[]
+  debts           Debts[] 
 }
 
 model Incomes {

@@ -82,6 +82,8 @@ function SidebarContent({
   return (
     <div className="w-[280px] flex flex-col h-full">
       <div className="flex justify-between items-center p-4 sm:p-6">
+
+        {/* Fixed: Restored the missing opening tag. Change to <Link> if using Next.js routing */}
         <a
           href="/dashboard"
           className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
@@ -91,6 +93,7 @@ function SidebarContent({
           </svg>
           <span className="text-sm font-semibold">Back</span>
         </a>
+
         <button
           onClick={onClose}
           className="p-1 hover:bg-white/10 cursor-pointer transition-colors rounded"
@@ -119,11 +122,10 @@ function SidebarContent({
               key={chat.id}
               onClick={() => onLoadChat(chat.id)}
               onContextMenu={(e) => { e.preventDefault(); onContextMenu(e.clientX, e.clientY, chat.id); }}
-              className={`p-2.5 sm:p-3 rounded-xl cursor-pointer flex items-center gap-2 sm:gap-3 transition-all ${
-                chat.id === activeChatId
+              className={`p-2.5 sm:p-3 rounded-xl cursor-pointer flex items-center gap-2 sm:gap-3 transition-all ${chat.id === activeChatId
                   ? 'bg-white/10 ring-1 ring-white/20'
                   : 'bg-white/5 hover:bg-white/10'
-              }`}
+                }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/img/globo.png" className="w-4 h-4 sm:w-5 sm:h-5 opacity-70 shrink-0" alt="chat" />
@@ -142,7 +144,7 @@ function SidebarContent({
 }
 
 export default function KualiPage() {
-  const { user, isLoaded } = useUser()  // ← Clerk hook
+  const { user, isLoaded } = useUser()
 
   const [mounted, setMounted] = useState(false)
   const [chatHistory, setChatHistory] = useState<Chat[]>([])
@@ -150,33 +152,32 @@ export default function KualiPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [userInput, setUserInput] = useState('')
   const [showInitial, setShowInitial] = useState(true)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return window.innerWidth >= 768
+  })
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: string } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (window.innerWidth < 768) setSidebarOpen(false)
-  }, [])
-
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
-    try {
-      const savedChats = localStorage.getItem('kuali_chatHistory')
-      const savedActiveId = localStorage.getItem('kuali_activeChatId')
-      if (savedChats) {
-        const parsed: Chat[] = JSON.parse(savedChats)
-        setChatHistory(parsed)
-        if (savedActiveId) {
-          setActiveChatId(savedActiveId)
-          const chat = parsed.find(c => c.id === savedActiveId)
-          if (chat) { setMessages(chat.messages); setShowInitial(false) }
-        }
+/* eslint-disable react-hooks/set-state-in-effect */
+useEffect(() => {
+  try {
+    const savedChats = localStorage.getItem('kuali_chatHistory')
+    const savedActiveId = localStorage.getItem('kuali_activeChatId')
+    if (savedChats) {
+      const parsed: Chat[] = JSON.parse(savedChats)
+      setChatHistory(parsed)
+      if (savedActiveId) {
+        setActiveChatId(savedActiveId)
+        const chat = parsed.find(c => c.id === savedActiveId)
+        if (chat) { setMessages(chat.messages); setShowInitial(false) }
       }
-    } catch {}
-    setMounted(true)
-  }, [])
-  /* eslint-enable react-hooks/set-state-in-effect */
+    }
+  } catch {}
+  setMounted(true)
+}, [])
+/* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => { if (!mounted) return; localStorage.setItem('kuali_chatHistory', JSON.stringify(chatHistory)) }, [chatHistory, mounted])
   useEffect(() => { if (!mounted) return; localStorage.setItem('kuali_activeChatId', activeChatId || '') }, [activeChatId, mounted])
@@ -203,7 +204,7 @@ export default function KualiPage() {
           throwOnError: false
         })
         el.scrollTop = el.scrollHeight
-      } catch {}
+      } catch { }
     }, 300)
   }, [messages, showInitial, sidebarOpen, activeChatId, isLoading])
 
@@ -250,8 +251,6 @@ export default function KualiPage() {
 
   async function sendMessage() {
     const userQuestion = userInput.trim()
-
-    // Guard: wait for Clerk to load and user to be available
     if (!userQuestion || isLoading || !isLoaded || !user) return
 
     setUserInput(''); setShowInitial(false); setIsLoading(true)
@@ -282,7 +281,7 @@ export default function KualiPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: userQuestion,
-          user_id: user.id,   // ← Clerk user ID sent to backend
+          user_id: user.id,
         })
       })
       const data = await response.json()
@@ -421,11 +420,10 @@ export default function KualiPage() {
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`max-w-[90%] sm:max-w-[80%] p-4 sm:p-6 rounded-2xl shadow-sm text-sm sm:text-base ${
-                      msg.role === 'user'
+                    className={`max-w-[90%] sm:max-w-[80%] p-4 sm:p-6 rounded-2xl shadow-sm text-sm sm:text-base ${msg.role === 'user'
                         ? 'bg-[#C2D4FF] text-black font-medium'
                         : 'bg-gray-50 text-gray-800 border border-gray-100'
-                    }`}
+                      }`}
                   >
                     {msg.role === 'assistant' ? (
                       <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: formatMessageContent(msg.content) }} />
