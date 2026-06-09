@@ -42,12 +42,12 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="w-full bg-white py-22 px-8 lg:px-16 mb-10">
+    <section className="w-full bg-white py-14 sm:py-22 px-4 sm:px-8 lg:px-16 mb-6 sm:mb-10">
       <div className="max-w-6xl mx-auto">
 
         {/* Badge */}
         <div className="flex justify-center mb-6">
-          <div className="px-5 py-2 rounded-full bg-[#C2D4FF] text-[#010221] text-sm font-medium tracking-wide">
+          <div className="px-4 sm:px-5 py-2 rounded-full bg-[#C2D4FF] text-[#010221] text-xs sm:text-sm font-medium tracking-wide">
             EVERYTHING YOU NEED
           </div>
         </div>
@@ -63,14 +63,14 @@ export default function FeaturesSection() {
             </span>
           </h1>
 
-          <p className="mt-6 text-lg text-gray-500 leading-relaxed">
+          <p className="mt-4 sm:mt-6 text-base sm:text-lg text-gray-500 leading-relaxed">
             Simple and powerful tools to manage your money
             and achieve your goals.
           </p>
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mt-16 px-2 lg:px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 mt-10 sm:mt-16 px-0 lg:px-6">
           {features.map((feature, index) => {
             const Icon = feature.icon;
 
@@ -82,7 +82,7 @@ export default function FeaturesSection() {
                   bg-white
                   rounded-[16px]
                   border border-gray-100
-                  p-8
+                  p-6 sm:p-8
                   transition-all duration-300
                   hover:-translate-y-1
                   hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)]
@@ -90,20 +90,20 @@ export default function FeaturesSection() {
               >
                 {/* Icon */}
                 <div
-                  className={`w-16 h-16 rounded-full ${feature.bg} flex items-center justify-center`}
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full ${feature.bg} flex items-center justify-center`}
                 >
                   <Icon
-                    className={`${feature.iconColor} w-7 h-7 stroke-[2.2]`}
+                    className={`${feature.iconColor} w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]`}
                   />
                 </div>
 
                 {/* Content */}
-                <div className="mt-6">
-                  <h3 className="text-xl font-semibold text-[#010221]">
+                <div className="mt-5 sm:mt-6">
+                  <h3 className="text-lg sm:text-xl font-semibold text-[#010221]">
                     {feature.title}
                   </h3>
 
-                  <p className="mt-3 text-gray-500 leading-7 text-[15px]">
+                  <p className="mt-3 text-gray-500 leading-7 text-sm sm:text-[15px]">
                     {feature.description}
                   </p>
                 </div>
@@ -116,4 +116,5 @@ export default function FeaturesSection() {
     </section>
   );
 }
+
  

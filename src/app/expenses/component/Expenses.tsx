@@ -42,21 +42,35 @@ function CalendarPicker({
 
   const selected = value
     ? (() => {
-        const [m, d, y] = value.split("/");
-        return `${y}-${m?.padStart(2, "0")}-${d?.padStart(2, "0")}`;
-      })()
+      const [m, d, y] = value.split("/");
+      return `${y}-${m?.padStart(2, "0")}-${d?.padStart(2, "0")}`;
+    })()
     : null;
+
+  // AFTER
+  const todayY = today.getFullYear();
+  const todayM = today.getMonth();
+  const todayD = today.getDate();
 
   const prevMonth = () => {
     if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
     else setViewMonth((m) => m - 1);
   };
   const nextMonth = () => {
+    if (viewYear === todayY && viewMonth === todayM) return;
     if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
     else setViewMonth((m) => m + 1);
   };
 
+  const isFutureMonth = viewYear > todayY || (viewYear === todayY && viewMonth > todayM);
+
+  // AFTER
   const selectDay = (day: number) => {
+    if (
+      viewYear > todayY ||
+      (viewYear === todayY && viewMonth > todayM) ||
+      (viewYear === todayY && viewMonth === todayM && day > todayD)
+    ) return;
     const m = viewMonth + 1;
     const formatted = `${m}/${day}/${viewYear}`;
     onChange(formatted);
@@ -72,7 +86,11 @@ function CalendarPicker({
       <div className="flex items-center justify-between mb-2">
         <button onClick={prevMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm">‹</button>
         <span className="text-sm font-semibold text-[#010221]">{monthNames[viewMonth]} {viewYear}</span>
-        <button onClick={nextMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm">›</button>
+        <button
+          onClick={nextMonth}
+          disabled={viewYear === todayY && viewMonth === todayM}
+          className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm disabled:opacity-20 disabled:cursor-not-allowed"
+        >›</button>
       </div>
       <div className="grid grid-cols-7 gap-0.5 mb-1">
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
@@ -84,11 +102,20 @@ function CalendarPicker({
           if (!day) return <div key={`empty-${i}`} />;
           const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const isSelected = dateStr === selected;
+          // AFTER
+          const isFuture =
+            isFutureMonth ||
+            (viewYear === todayY && viewMonth === todayM && day > todayD);
+
           return (
             <button
               key={day}
               onClick={() => selectDay(day)}
-              className={`text-xs py-1 rounded-lg transition-colors ${isSelected ? "bg-[#010221] text-white font-semibold" : "hover:bg-gray-100 text-gray-700"}`}
+              disabled={isFuture}
+              className={`text-xs py-1 rounded-lg transition-colors
+      ${isSelected ? "bg-[#010221] text-white font-semibold" : ""}
+      ${isFuture ? "text-gray-200 cursor-not-allowed" : !isSelected ? "hover:bg-gray-100 text-gray-700" : ""}
+    `}
             >
               {day}
             </button>
@@ -128,6 +155,15 @@ export default function Expenses({ initialExpenses }: { initialExpenses: Expense
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // ✅ Fix: lee la fecha en UTC para evitar desfase por timezone (ej. El Salvador UTC-6)
+  const formatExpenseDate = (date: Date) => {
+    const d = new Date(date);
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth() + 1;
+    const day = d.getUTCDate();
+    return `${month}/${day}/${year}`;
+  };
+
   const handleAmountChange = (val: string) => {
     if (val === "" || /^\d+(\.\d{0,2})?$/.test(val)) setAmount(val);
   };
@@ -137,12 +173,16 @@ export default function Expenses({ initialExpenses }: { initialExpenses: Expense
     setDate(cleaned);
   };
 
+  // AFTER
   const isValidDate = (val: string) => {
     const parts = val.split("/");
     if (parts.length !== 3) return false;
     const [m, d, y] = parts.map(Number);
     if (!m || !d || !y) return false;
     const dateObj = new Date(y, m - 1, d);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (dateObj > today) return false;
     return dateObj.getFullYear() === y && dateObj.getMonth() === m - 1 && dateObj.getDate() === d;
   };
 
@@ -219,7 +259,6 @@ export default function Expenses({ initialExpenses }: { initialExpenses: Expense
       {/* Add Expense Form */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mb-5 sm:p-6">
 
-        {/* 1 col → 2 col → 4 col grid, matching Incomes layout */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
           {/* Expense name */}
@@ -362,8 +401,9 @@ export default function Expenses({ initialExpenses }: { initialExpenses: Expense
               >
                 <div className="px-2">
                   <span className="text-sm text-[#010221] block">{expense.outflow_type}</span>
+                  {/* ✅ Mobile: fecha corregida sin desfase de timezone */}
                   <span className="text-xs text-red-400 font-medium block xs:hidden">
-                    ${expense.amount.toFixed(2)} · {new Date(expense.date).toLocaleDateString()}
+                    ${expense.amount.toFixed(2)} · {formatExpenseDate(expense.date)}
                   </span>
                 </div>
 
@@ -375,8 +415,9 @@ export default function Expenses({ initialExpenses }: { initialExpenses: Expense
                   ${expense.amount.toFixed(2)}
                 </span>
 
+                {/* ✅ Date: fecha corregida sin desfase de timezone */}
                 <span className="hidden sm:block text-sm text-gray-600 px-2">
-                  {new Date(expense.date).toLocaleDateString()}
+                  {formatExpenseDate(expense.date)}
                 </span>
 
                 <div className="relative flex justify-center" ref={openMenu === String(expense.id) ? menuRef : undefined}>

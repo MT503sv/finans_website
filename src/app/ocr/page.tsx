@@ -11,6 +11,20 @@ export default function OCRPage() {
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [records, setRecords] = useState<SaleRecord[]>([]);
 
+  const handleDataExtracted = (data: ExtractedData) => {
+    setExtractedData(data);
+    setStep('editing');
+  };
+
+  const handleSaveRecords = (newRecords: SaleRecord[]) => {
+    setRecords([...newRecords, ...records]);
+    setStep('idle');
+  };
+
+  const handleDeleteRecord = (id: string) => {
+    setRecords(records.filter(r => r.id !== id));
+  };
+
   return (
     <div className="min-h-screen bg-white py-5">
       <div className="mb-6 px-6 pt-3">
@@ -18,16 +32,16 @@ export default function OCRPage() {
       </div>
       {step === 'idle' ? (
         <>
-          <OCRScanner onDataExtracted={(data) => { setExtractedData(data); setStep('editing'); }} />
+          <OCRScanner onDataExtracted={handleDataExtracted} />
           <div className="max-w-4xl mx-auto px-4 mt-12">
-            <SalesHistory records={records} onDelete={(id) => setRecords(records.filter(r => r.id !== id))} />
+            <SalesHistory records={records} onDelete={handleDeleteRecord} />
           </div>
         </>
       ) : (
         <div className="max-w-4xl mx-auto px-4">
           <EditForm
             data={extractedData!}
-            onSave={(newRecords) => { setRecords([...newRecords, ...records]); setStep('idle'); }}
+            onSave={handleSaveRecords}
             onCancel={() => setStep('idle')}
           />
         </div>

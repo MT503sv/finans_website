@@ -21,8 +21,13 @@ function CalendarPicker({
   onClose: () => void;
 }) {
   const today = new Date();
-  const [viewYear, setViewYear] = useState(today.getFullYear());
-  const [viewMonth, setViewMonth] = useState(today.getMonth());
+  // Usar fecha local del navegador (El Salvador) para el tope de "hoy"
+  const todayY = today.getFullYear();
+  const todayM = today.getMonth();
+  const todayD = today.getDate();
+
+  const [viewYear, setViewYear] = useState(todayY);
+  const [viewMonth, setViewMonth] = useState(todayM);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,16 +52,28 @@ function CalendarPicker({
       })()
     : null;
 
+  // Navegar mes — no permitir ir al futuro más allá del mes actual
   const prevMonth = () => {
     if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
     else setViewMonth((m) => m - 1);
   };
   const nextMonth = () => {
+    // Bloquear si ya estamos en el mes actual
+    if (viewYear === todayY && viewMonth === todayM) return;
     if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
     else setViewMonth((m) => m + 1);
   };
 
+  const isFutureMonth = viewYear > todayY || (viewYear === todayY && viewMonth > todayM);
+
   const selectDay = (day: number) => {
+    // Bloquear días futuros
+    if (
+      viewYear > todayY ||
+      (viewYear === todayY && viewMonth > todayM) ||
+      (viewYear === todayY && viewMonth === todayM && day > todayD)
+    ) return;
+
     const m = viewMonth + 1;
     const formatted = `${m}/${day}/${viewYear}`;
     onChange(formatted);
@@ -72,7 +89,12 @@ function CalendarPicker({
       <div className="flex items-center justify-between mb-2">
         <button onClick={prevMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm">‹</button>
         <span className="text-sm font-semibold text-[#010221]">{monthNames[viewMonth]} {viewYear}</span>
-        <button onClick={nextMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm">›</button>
+        {/* Flecha derecha deshabilitada si ya estamos en el mes actual */}
+        <button
+          onClick={nextMonth}
+          disabled={viewYear === todayY && viewMonth === todayM}
+          className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm disabled:opacity-20 disabled:cursor-not-allowed"
+        >›</button>
       </div>
       <div className="grid grid-cols-7 gap-0.5 mb-1">
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
@@ -82,13 +104,24 @@ function CalendarPicker({
       <div className="grid grid-cols-7 gap-0.5">
         {cells.map((day, i) => {
           if (!day) return <div key={`empty-${i}`} />;
+
           const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const isSelected = dateStr === selected;
+
+          // Es futuro si el mes es futuro, o si es el mes actual y el día es mayor a hoy
+          const isFuture =
+            isFutureMonth ||
+            (viewYear === todayY && viewMonth === todayM && day > todayD);
+
           return (
             <button
               key={day}
               onClick={() => selectDay(day)}
-              className={`text-xs py-1 rounded-lg transition-colors ${isSelected ? "bg-[#010221] text-white font-semibold" : "hover:bg-gray-100 text-gray-700"}`}
+              disabled={isFuture}
+              className={`text-xs py-1 rounded-lg transition-colors
+                ${isSelected ? "bg-[#010221] text-white font-semibold" : ""}
+                ${isFuture ? "text-gray-200 cursor-not-allowed" : !isSelected ? "hover:bg-gray-100 text-gray-700" : ""}
+              `}
             >
               {day}
             </button>
@@ -129,6 +162,15 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Lee la fecha en UTC para evitar desfase de timezone
+  const formatSaleDate = (date: Date) => {
+    const d = new Date(date);
+    const year  = d.getUTCFullYear();
+    const month = d.getUTCMonth() + 1;
+    const day   = d.getUTCDate();
+    return `${month}/${day}/${year}`;
+  };
+
   const handleQuantityChange = (val: string) => {
     if (val === "" || /^\d+$/.test(val)) setQuantity(val);
   };
@@ -148,6 +190,10 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
     const [m, d, y] = parts.map(Number);
     if (!m || !d || !y) return false;
     const dateObj = new Date(y, m - 1, d);
+    // Validar que no sea fecha futura
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (dateObj > today) return false;
     return dateObj.getFullYear() === y && dateObj.getMonth() === m - 1 && dateObj.getDate() === d;
   };
 
@@ -160,7 +206,7 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
     if (!date) {
       missing.push("Date");
     } else if (!isValidDate(date)) {
-      setError("The date entered is not valid. Please use the format M/D/YYYY (e.g. 5/20/2026).");
+      setError("The date entered is not valid or is in the future. Please use the format M/D/YYYY (e.g. 5/20/2026).");
       return;
     }
 
@@ -225,12 +271,6 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
 
       {/* Add Sale Form */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mb-5 sm:p-6">
-        {/*
-          Responsive grid:
-          - Mobile:  1 column (all fields stacked)
-          - Tablet:  2 columns
-          - Desktop: 4 columns (Product | Quantity | Unit Price | Date)
-        */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
           <div>
@@ -271,7 +311,6 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
             </div>
           </div>
 
-          {/* Date: full width on tablet (spans 2), normal on desktop */}
           <div className="relative">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Date</label>
             <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#010221]/20 focus-within:border-[#010221] transition-all">
@@ -343,13 +382,6 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
         <p className="text-xs text-gray-400 mt-0.5 mb-5">All your recorded sales.</p>
 
         <div className="w-full">
-          {/*
-            Table columns by breakpoint:
-            - Mobile:       Product | actions               (all numeric cols hidden)
-            - xs (475px+):  Product | Total | actions
-            - sm (640px+):  Product | Qty | Unit Price | Total | actions
-            - lg (1024px+): Product | Qty | Unit Price | Total | Date | actions
-          */}
           <div className="grid grid-cols-[1fr_40px] xs:grid-cols-[1fr_1fr_40px] sm:grid-cols-[1.5fr_1fr_1fr_1fr_40px] lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr_40px] border-b border-gray-200 pb-2 mb-1">
             <span className="text-xs font-semibold text-[#010221] px-2">Product</span>
             <span className="hidden sm:block text-xs font-semibold text-[#010221] px-2">Quantity</span>
@@ -389,34 +421,18 @@ export default function Sales({ initialSales }: { initialSales: Sale[] }) {
                 key={sale.id}
                 className="grid grid-cols-[1fr_40px] xs:grid-cols-[1fr_1fr_40px] sm:grid-cols-[1.5fr_1fr_1fr_1fr_40px] lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr_40px] py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors rounded-lg items-center"
               >
-                {/* Product — on mobile also shows total + date stacked */}
                 <div className="px-2">
                   <span className="text-sm text-[#010221] block">{sale.item_sold}</span>
-                  {/* Only visible on mobile */}
                   <span className="text-xs text-green-500 font-medium block xs:hidden">
-                    ${(sale.quantity_of_sold_items * sale.price_of_item).toFixed(2)} · {new Date(sale.date).toLocaleDateString()}
+                    ${(sale.quantity_of_sold_items * sale.price_of_item).toFixed(2)} · {formatSaleDate(sale.date)}
                   </span>
                 </div>
-
-                {/* Quantity — hidden on mobile and xs, visible sm+ */}
-                <span className="hidden sm:block text-sm text-gray-600 px-2">
-                  {sale.quantity_of_sold_items}
-                </span>
-
-                {/* Unit Price — hidden on mobile and xs, visible sm+ */}
-                <span className="hidden sm:block text-sm text-green-500 font-medium px-2">
-                  ${sale.price_of_item.toFixed(2)}
-                </span>
-
-                {/* Total — hidden on mobile, visible xs+ */}
+                <span className="hidden sm:block text-sm text-gray-600 px-2">{sale.quantity_of_sold_items}</span>
+                <span className="hidden sm:block text-sm text-green-500 font-medium px-2">${sale.price_of_item.toFixed(2)}</span>
                 <span className="hidden xs:block text-sm text-green-500 font-medium px-2">
                   ${(sale.quantity_of_sold_items * sale.price_of_item).toFixed(2)}
                 </span>
-
-                {/* Date — hidden until lg */}
-                <span className="hidden lg:block text-sm text-gray-600 px-2">
-                  {new Date(sale.date).toLocaleDateString()}
-                </span>
+                <span className="hidden lg:block text-sm text-gray-600 px-2">{formatSaleDate(sale.date)}</span>
 
                 <div className="relative flex justify-center" ref={openMenu === String(sale.id) ? menuRef : undefined}>
                   <button

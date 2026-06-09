@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 type Goal = {
   id: number;
@@ -55,9 +56,9 @@ export function GoalsChecklist({ goals: initial }: { goals: Goal[] }) {
     <div className="bg-white rounded-2xl shadow-md p-6 w-full">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-900">Goals</h2>
-        <span className="text-sm font-semibold text-gray-900 cursor-pointer hover:underline">
+        <Link href="/goals" className="text-sm font-semibold text-gray-900 cursor-pointer hover:underline">
           View All Goals
-        </span>
+        </Link>
       </div>
 
       <div className="space-y-4">

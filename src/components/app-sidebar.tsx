@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
+import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { UserButton } from "@clerk/nextjs"
 import Image from "next/image"
 import Link from "next/link"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
@@ -25,13 +25,17 @@ import {
 import {
   LayoutDashboard,
   FileBarChart2,
-  Package,
   Target,
   Bot,
   ScanLine,
   Star,
   LucideIcon,
 } from "lucide-react"
+
+const UserButton = dynamic(
+  () => import("@clerk/nextjs").then(mod => mod.UserButton),
+  { ssr: false }
+)
 
 interface NavItem {
   title: string
@@ -41,17 +45,16 @@ interface NavItem {
 }
 
 const data: NavItem[] = [
-  { section: "My business", title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { section: "My business", title: "Inventory", url: "/inventory", icon: Package },
-  { section: "My business", title: "My Goals", url: "/goals", icon: Target },
-  { section: "Tracking", title: "Sales", url: "/sales", icon: FileBarChart2 },  
-  { section: "Tracking", title: "Incomes", url: "/incomes", icon: FileBarChart2 },
-  { section: "Tracking", title: "Expenses", url: "/expenses", icon: FileBarChart2 },
-  { section: "Tracking", title: "Debts", url: "/debts", icon: FileBarChart2 },
-  { section: "Tools", title: "AI chat", url: "/ai-chat", icon: Bot },
-  { section: "Tools", title: "Scanner", url: "/ocr", icon: ScanLine },
-  { section: "Tools", title: "AI Reports", url: "/reports", icon: FileBarChart2 },
-  { section: "Premium", title: "Get Premium", url: "/plans", icon: Star },
+  { section: "My business", title: "Dashboard",  url: "/dashboard", icon: LayoutDashboard },
+  { section: "My business", title: "My Goals",   url: "/goals",     icon: Target },
+  { section: "Tracking",    title: "Sales",      url: "/sales",     icon: FileBarChart2 },
+  { section: "Tracking",    title: "Incomes",    url: "/incomes",   icon: FileBarChart2 },
+  { section: "Tracking",    title: "Expenses",   url: "/expenses",  icon: FileBarChart2 },
+  { section: "Tracking",    title: "Debts",      url: "/debts",     icon: FileBarChart2 },
+  { section: "Tools",       title: "AI chat",    url: "/kuali",     icon: Bot },
+  { section: "Tools",       title: "Scanner",    url: "/ocr",       icon: ScanLine },
+  { section: "Tools",       title: "Reports",    url: "/report",    icon: FileBarChart2 },
+  { section: "Premium",     title: "Get Premium",url: "/plans",     icon: Star },
 ]
 
 const grouped = data.reduce<Record<string, NavItem[]>>((acc, item) => {

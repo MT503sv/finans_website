@@ -24,7 +24,7 @@ export default function AboutSection() {
 
             {/* STEP 1 */}
             <div className="text-center relative">
-              <div className="w-20 h-20 mx-auto rounded-3xl bg-white shadow-lg border-2 border[#010221]/5 flex items-center justify-center hover:-translate-y-2 transition-all duration-300">
+              <div className="w-20 h-20 mx-auto rounded-3xl bg-white shadow-lg border-2 border-[#010221]/5 flex items-center justify-center hover:-translate-y-2 transition-all duration-300">
                 <Image src="/logos/idea.png" alt="Idea" width={38} height={38} className="object-contain" />
               </div>
               <div className="hidden md:block w-3 h-3 rounded-full bg-[#010221] absolute top-9 right-[-25px]"></div>
@@ -36,7 +36,7 @@ export default function AboutSection() {
 
             {/* STEP 2 */}
             <div className="text-center relative">
-              <div className="w-20 h-20 mx-auto rounded-3xl bg-white shadow-lg border-2 border[#010221]/5 flex items-center justify-center hover:-translate-y-2 transition-all duration-300">
+              <div className="w-20 h-20 mx-auto rounded-3xl bg-white shadow-lg border-2 border-[#010221]/5 flex items-center justify-center hover:-translate-y-2 transition-all duration-300">
                 <Image src="/logos/rocket.svg" alt="Solution" width={38} height={38} className="object-contain" />
               </div>
               <div className="hidden md:block w-3 h-3 rounded-full bg-[#010221] absolute top-9 right-[-25px]"></div>
@@ -48,7 +48,7 @@ export default function AboutSection() {
 
             {/* STEP 3 */}
             <div className="text-center relative">
-              <div className="w-20 h-20 mx-auto rounded-3xl bg-white shadow-lg border-2 border[#010221]/5 flex items-center justify-center hover:-translate-y-2 transition-all duration-300">
+              <div className="w-20 h-20 mx-auto rounded-3xl bg-white shadow-lg border-2 border-[#010221]/5 flex items-center justify-center hover:-translate-y-2 transition-all duration-300">
                 <Image src="/logos/growth2.svg" alt="Impact" width={38} height={38} className="object-contain" />
               </div>
               <h3 className="text-2xl font-semibold text-[#010221] mt-8">The impact</h3>

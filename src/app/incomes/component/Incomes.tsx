@@ -54,21 +54,35 @@ function CalendarPicker({
 
   const selected = value
     ? (() => {
-        const [m, d, y] = value.split("/");
-        return `${y}-${m?.padStart(2, "0")}-${d?.padStart(2, "0")}`;
-      })()
+      const [m, d, y] = value.split("/");
+      return `${y}-${m?.padStart(2, "0")}-${d?.padStart(2, "0")}`;
+    })()
     : null;
+
+  // AFTER
+  const todayY = today.getFullYear();
+  const todayM = today.getMonth();
+  const todayD = today.getDate();
 
   const prevMonth = () => {
     if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
     else setViewMonth((m) => m - 1);
   };
   const nextMonth = () => {
+    if (viewYear === todayY && viewMonth === todayM) return;
     if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
     else setViewMonth((m) => m + 1);
   };
 
+  const isFutureMonth = viewYear > todayY || (viewYear === todayY && viewMonth > todayM);
+
+  // AFTER
   const selectDay = (day: number) => {
+    if (
+      viewYear > todayY ||
+      (viewYear === todayY && viewMonth > todayM) ||
+      (viewYear === todayY && viewMonth === todayM && day > todayD)
+    ) return;
     const m = viewMonth + 1;
     const formatted = `${m}/${day}/${viewYear}`;
     onChange(formatted);
@@ -84,7 +98,11 @@ function CalendarPicker({
       <div className="flex items-center justify-between mb-2">
         <button onClick={prevMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm">‹</button>
         <span className="text-sm font-semibold text-[#010221]">{monthNames[viewMonth]} {viewYear}</span>
-        <button onClick={nextMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm">›</button>
+        <button
+          onClick={nextMonth}
+          disabled={viewYear === todayY && viewMonth === todayM}
+          className="p-1 hover:bg-gray-100 rounded-lg text-gray-600 text-sm disabled:opacity-20 disabled:cursor-not-allowed"
+        >›</button>
       </div>
       <div className="grid grid-cols-7 gap-0.5 mb-1">
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
@@ -96,11 +114,20 @@ function CalendarPicker({
           if (!day) return <div key={`empty-${i}`} />;
           const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const isSelected = dateStr === selected;
+          // AFTER
+          const isFuture =
+            isFutureMonth ||
+            (viewYear === todayY && viewMonth === todayM && day > todayD);
+
           return (
             <button
               key={day}
               onClick={() => selectDay(day)}
-              className={`text-xs py-1 rounded-lg transition-colors ${isSelected ? "bg-[#010221] text-white font-semibold" : "hover:bg-gray-100 text-gray-700"}`}
+              disabled={isFuture}
+              className={`text-xs py-1 rounded-lg transition-colors
+      ${isSelected ? "bg-[#010221] text-white font-semibold" : ""}
+      ${isFuture ? "text-gray-200 cursor-not-allowed" : !isSelected ? "hover:bg-gray-100 text-gray-700" : ""}
+    `}
             >
               {day}
             </button>
@@ -140,6 +167,15 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // ✅ Fix: lee la fecha en UTC para evitar desfase por timezone (ej. El Salvador UTC-6)
+  const formatIncomeDate = (date: Date) => {
+    const d = new Date(date);
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth() + 1;
+    const day = d.getUTCDate();
+    return `${month}/${day}/${year}`;
+  };
+
   const handleAmountChange = (val: string) => {
     if (val === "" || /^\d+(\.\d{0,2})?$/.test(val)) setAmount(val);
   };
@@ -149,13 +185,17 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
     setDateReceived(cleaned);
   };
 
+  // AFTER
   const isValidDate = (val: string) => {
     const parts = val.split("/");
     if (parts.length !== 3) return false;
     const [m, d, y] = parts.map(Number);
     if (!m || !d || !y) return false;
-    const date = new Date(y, m - 1, d);
-    return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+    const dateObj = new Date(y, m - 1, d);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (dateObj > today) return false;
+    return dateObj.getFullYear() === y && dateObj.getMonth() === m - 1 && dateObj.getDate() === d;
   };
 
   const handleAdd = async () => {
@@ -229,12 +269,6 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
 
       {/* Add Income Form */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mb-5 sm:p-6">
-        {/*
-          Responsive grid:
-          - Mobile:  1 column (all fields stacked)
-          - Tablet:  2 columns
-          - Desktop: 4 columns (all side by side)
-        */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
           <div>
@@ -268,7 +302,6 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
             </div>
           </div>
 
-          {/* Date received: full width on tablet, normal on desktop */}
           <div className="relative">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Date received</label>
             <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#010221]/20 focus-within:border-[#010221] transition-all">
@@ -338,13 +371,6 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
         <p className="text-xs text-gray-400 mt-0.5 mb-5">History of all your added income.</p>
 
         <div className="w-full">
-          {/*
-            Table columns by breakpoint:
-            - Mobile:       Type | actions           (amount + date + desc hidden)
-            - xs (475px+):  Type | Amount | actions
-            - sm (640px+):  Type | Amount | Date | actions
-            - lg (1024px+): Type | Description | Amount | Date | actions
-          */}
           <div className="grid grid-cols-[1fr_40px] xs:grid-cols-[1fr_1fr_40px] sm:grid-cols-[1fr_1fr_1fr_40px] lg:grid-cols-[1fr_1.5fr_1fr_1fr_40px] border-b border-gray-200 pb-2 mb-1">
             <span className="text-xs font-semibold text-[#010221] px-2">Type</span>
             <span className="hidden lg:block text-xs font-semibold text-[#010221] px-2">Description</span>
@@ -383,28 +409,25 @@ export default function Incomes({ initialIncomes }: { initialIncomes: Income[] }
                 key={income.id}
                 className="grid grid-cols-[1fr_40px] xs:grid-cols-[1fr_1fr_40px] sm:grid-cols-[1fr_1fr_1fr_40px] lg:grid-cols-[1fr_1.5fr_1fr_1fr_40px] py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors rounded-lg items-center"
               >
-                {/* Type — on mobile also shows amount + date stacked */}
                 <div className="px-2">
                   <span className="text-sm text-[#010221] block">{income.income_type}</span>
-                  {/* Only visible on mobile */}
+                  {/* ✅ Mobile: fecha corregida sin desfase de timezone */}
                   <span className="text-xs text-green-500 font-medium block xs:hidden">
-                    ${income.amount.toFixed(2)} · {new Date(income.date).toLocaleDateString()}
+                    ${income.amount.toFixed(2)} · {formatIncomeDate(income.date)}
                   </span>
                 </div>
 
-                {/* Description — only on lg+ */}
                 <span className="hidden lg:block text-sm text-gray-500 px-2 truncate">
                   {income.description || "---"}
                 </span>
 
-                {/* Amount — hidden on mobile, visible xs+ */}
                 <span className="hidden xs:block text-sm text-green-500 font-medium px-2">
                   ${income.amount.toFixed(2)}
                 </span>
 
-                {/* Date — hidden on mobile and xs, visible sm+ */}
+                {/* ✅ Date: fecha corregida sin desfase de timezone */}
                 <span className="hidden sm:block text-sm text-gray-600 px-2">
-                  {new Date(income.date).toLocaleDateString()}
+                  {formatIncomeDate(income.date)}
                 </span>
 
                 <div className="relative flex justify-center" ref={openMenu === String(income.id) ? menuRef : undefined}>

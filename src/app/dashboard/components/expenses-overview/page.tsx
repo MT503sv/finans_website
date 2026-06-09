@@ -1,7 +1,12 @@
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { ExpensesChart } from "./ExpensesChart";
 
 export default async function ExpensesOverview() {
+  const { userId } = await auth();
+  
+  if (!userId) return <div>Not authenticated</div>;
+
   const now = new Date();
 
   // Rango mes actual
@@ -21,13 +26,13 @@ export default async function ExpensesOverview() {
     prisma.outflows.groupBy({
       by: ["outflow_type"],
       _sum: { amount: true },
-      where: { date: { gte: monthStart, lte: monthEnd } },
+      where: { user_id: userId, date: { gte: monthStart, lte: monthEnd } },
       orderBy: { _sum: { amount: "desc" } },
     }),
     prisma.outflows.groupBy({
       by: ["outflow_type"],
       _sum: { amount: true },
-      where: { date: { gte: weekStart, lte: weekEnd } },
+      where: { user_id: userId, date: { gte: weekStart, lte: weekEnd } },
       orderBy: { _sum: { amount: "desc" } },
     }),
   ]);
