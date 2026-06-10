@@ -8,8 +8,8 @@ import 'katex/dist/katex.min.css'
 import renderMathInElement from 'katex/dist/contrib/auto-render'
 
 const KUALI_API_URL =
-  process.env.NEXT_PUBLIC_KUALI_API_URL ||
-  "http://127.0.0.1:5000"
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://finanswebsite-production-7320.up.railway.app"
 
 interface Message {
   role: 'user' | 'assistant'
