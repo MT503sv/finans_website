@@ -5,8 +5,8 @@ import os
 from dotenv import load_dotenv
 from io import BytesIO
 
-from Backend.report_creator.services.pdf_service import generate_pdf
-from Backend.report_creator.services.excel_service import generate_excel
+from report_creator.services.pdf_service import generate_pdf
+from report_creator.services.excel_service import generate_excel
 
 load_dotenv()
 
