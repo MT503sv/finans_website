@@ -592,6 +592,17 @@ def generate_report():
         return jsonify({"error": str(e)}), 500
 
 
-if __name__ == '__main__':
-    debug_mode = os.getenv("FLASK_DEBUG", "true").lower() == "true"
-    app.run(debug=debug_mode, port=8080)
+app = Flask(__name__)
+
+CORS(app, origins=[
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    os.getenv("FRONTEND_URL", ""),
+])
+
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({
+        "status": "online",
+        "message": "Kuali API running successfully"
+    })
