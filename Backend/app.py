@@ -594,4 +594,4 @@ def generate_report():
 
 if __name__ == '__main__':
     debug_mode = os.getenv("FLASK_DEBUG", "true").lower() == "true"
-    app.run(debug=debug_mode, port=5000)
+    app.run(debug=debug_mode, port=8080)
