@@ -24,7 +24,7 @@ export default function ReportsPage() {
   const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [files, setFiles] = useState({ pdf: "", excel: "" });
 
-  const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const API = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     if (step !== "idle" && step !== "loading") {
