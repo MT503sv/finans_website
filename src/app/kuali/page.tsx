@@ -7,7 +7,9 @@ import { SendHorizontal } from 'lucide-react'
 import 'katex/dist/katex.min.css'
 import renderMathInElement from 'katex/dist/contrib/auto-render'
 
-const KUALI_API_URL = process.env.NEXT_PUBLIC_KUALI_API_URL || 'http://127.0.0.1:5000'
+const KUALI_API_URL =
+  process.env.NEXT_PUBLIC_KUALI_API_URL ||
+  "http://127.0.0.1:5000"
 
 interface Message {
   role: 'user' | 'assistant'
