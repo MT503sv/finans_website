@@ -21,6 +21,13 @@ CORS(app, origins=[
     os.getenv("FRONTEND_URL", ""),
 ])
 
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({
+        "status": "online",
+        "message": "Kuali API running successfully"
+    })
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise RuntimeError("Missing GROQ_API_KEY environment variable in .env file")
@@ -592,17 +599,6 @@ def generate_report():
         return jsonify({"error": str(e)}), 500
 
 
-app = Flask(__name__)
-
-CORS(app, origins=[
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    os.getenv("FRONTEND_URL", ""),
-])
-
-@app.route("/", methods=["GET"])
-def home():
-    return jsonify({
-        "status": "online",
-        "message": "Kuali API running successfully"
-    })
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
