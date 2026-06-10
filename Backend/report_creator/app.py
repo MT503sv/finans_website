@@ -167,8 +167,8 @@ def generate_report():
 
     return jsonify({
         "success": True,
-        "pdf": "http://127.0.0.1:5000/download/pdf",
-        "excel": "http://127.0.0.1:5000/download/excel",
+        "pdf": request.host_url + "download/pdf",
+        "excel": request.host_url + "download/excel",
         "insights": insights
     })
 
