@@ -13,17 +13,17 @@ load_dotenv(override=True)
 
 os.environ.setdefault("PRISMA_SCHEMA_PATH", "prisma/schema.python.prisma")
 
-app = Flask(__name__)
+from flask_cors import CORS
 
-CORS(
-    app,
-    resources={r"/*": {"origins": [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "https://finans.up.railway.app"
-    ]}},
-    supports_credentials=True
-),
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "https://finans.up.railway.app"
+        ]
+    }
+}),
 
 @app.route("/", methods=["GET"])
 def home():
