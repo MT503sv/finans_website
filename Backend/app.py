@@ -15,11 +15,21 @@ os.environ.setdefault("PRISMA_SCHEMA_PATH", "prisma/schema.python.prisma")
 
 app = Flask(__name__)
 
-CORS(app, origins=[
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    os.getenv("FRONTEND_URL", ""),
-])
+app = Flask(__name__)
+
+CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": [
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "https://finans.up.railway.app"
+            ]
+        }
+    },
+    supports_credentials=True
+)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -599,18 +609,6 @@ def generate_report():
         return jsonify({"error": str(e)}), 500
 
 
-app = Flask(__name__)
-
-CORS(
-    app,
-    resources={
-        r"/*": {
-            "origins": [
-                "http://localhost:3000",
-                "http://127.0.0.1:3000",
-                "https://finans.up.railway.app"
-            ]
-        }
-    },
-    supports_credentials=True
-)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
