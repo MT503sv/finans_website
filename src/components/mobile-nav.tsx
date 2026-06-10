@@ -22,7 +22,6 @@ interface NavItem {
 
 const data: NavItem[] = [
   { section: "My business", title: "Dashboard",  url: "/dashboard", icon: LayoutDashboard },
-  { section: "My business", title: "Inventory",  url: "/inventory", icon: Package },
   { section: "My business", title: "My Goals",   url: "/goals",     icon: Target },
   { section: "Tracking",    title: "Sales",      url: "/sales",     icon: FileBarChart2 },
   { section: "Tracking",    title: "Incomes",    url: "/incomes",   icon: FileBarChart2 },
