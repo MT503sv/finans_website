@@ -10,6 +10,15 @@ from prisma import Prisma
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
+os.environ.setdefault(
+    "PRISMA_SCHEMA_PATH",
+    "prisma/schema.python.prisma"
+)
+
+os.environ.setdefault(
+    "PRISMA_QUERY_ENGINE_BINARY",
+    "/app/prisma-query-engine-debian-openssl-3.0.x"
+)
 
 os.environ.setdefault("PRISMA_SCHEMA_PATH", "prisma/schema.python.prisma")
 
