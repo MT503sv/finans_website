@@ -27,6 +27,17 @@ def home():
         "status": "online",
         "message": "Kuali API running successfully"
     })
+    
+@app.route("/debug")
+def debug():
+    import os
+
+    return jsonify({
+        "cwd": os.getcwd(),
+        "schema_exists": os.path.exists("prisma/schema.python.prisma"),
+        "engine_exists": os.path.exists("prisma-query-engine-debian-openssl-3.0.x"),
+        "root_files": os.listdir("."),
+    })
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
