@@ -10,15 +10,6 @@ from prisma import Prisma
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
-os.environ.setdefault(
-    "PRISMA_SCHEMA_PATH",
-    "prisma/schema.python.prisma"
-)
-
-os.environ.setdefault(
-    "PRISMA_QUERY_ENGINE_BINARY",
-    "/app/prisma-query-engine-debian-openssl-3.0.x"
-)
 
 os.environ.setdefault("PRISMA_SCHEMA_PATH", "prisma/schema.python.prisma")
 
@@ -35,17 +26,6 @@ def home():
     return jsonify({
         "status": "online",
         "message": "Kuali API running successfully"
-    })
-    
-@app.route("/debug")
-def debug():
-    import os
-
-    return jsonify({
-        "cwd": os.getcwd(),
-        "schema_exists": os.path.exists("prisma/schema.python.prisma"),
-        "engine_exists": os.path.exists("prisma-query-engine-debian-openssl-3.0.x"),
-        "root_files": os.listdir("."),
     })
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
