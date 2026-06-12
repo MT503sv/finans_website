@@ -1,11 +1,13 @@
+
+ 
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-
+ 
 @theme {
   --breakpoint-xs: 475px;
 }
-
+ 
 :root {
   --background: #e9fafd;
   --foreground: #1a1a1a;
@@ -13,11 +15,11 @@
   --secondary: #C2C9FF;
   --primary-foreground: #e9fafd;
 }
-
+ 
 .rdp-months {
   gap: 2rem !important;
 }
-
+ 
 @media (max-width: 768px) {
   .rdp-months {
     flex-direction: column !important;
@@ -29,7 +31,7 @@
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
+ 
 .animated-border {
   position: relative;
   border-radius: 0.5rem;
@@ -43,11 +45,21 @@
   background-size: 300% 300%;
   animation: border-spin 4s ease infinite;
 }
-
+ 
 .animated-border-inner {
   background: white;
   border-radius: 0.4rem;
   width: 100%;
   height: 100%;
 }
-
+ 
+.cl-pricingTable {
+  grid-template-columns: repeat(1, 1fr) !important;
+}
+ 
+@media (min-width: 640px) {
+  .cl-pricingTable {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+ 

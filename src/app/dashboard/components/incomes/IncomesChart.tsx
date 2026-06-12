@@ -1,12 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { ChartContainer } from "@/components/ui/chart";
 
 const chartConfig = {
   total: { label: "Income + Sales", color: "#bfdbfe" },
@@ -19,19 +15,53 @@ type Props = {
   weeklyData: DataPoint[];
 };
 
+const fmt = (n: number) => "$" + n.toLocaleString("en-US");
+
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string }) {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div
+      style={{
+        backgroundColor: "white",
+        border: "1px solid #e5e7eb",
+        borderRadius: "8px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        padding: "8px 12px",
+        zIndex: 50,
+      }}
+    >
+      <p style={{ fontSize: "11px", color: "#6b7280", marginBottom: "6px" }}>{label}</p>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <span
+          style={{
+            width: "10px",
+            height: "10px",
+            borderRadius: "2px",
+            backgroundColor: "#bfdbfe",
+            flexShrink: 0,
+          }}
+        />
+        <span style={{ fontSize: "13px", color: "#374151" }}>Income + Sales</span>
+      </div>
+      <p style={{ fontSize: "13px", fontWeight: 600, color: "#111827", marginTop: "4px", paddingLeft: "18px" }}>
+        {fmt(payload[0].value)}
+      </p>
+    </div>
+  );
+}
+
 export function IncomesChart({ monthlyData, weeklyData }: Props) {
   const [view, setView] = useState<"monthly" | "weekly">("monthly");
 
   const data = view === "monthly" ? monthlyData : weeklyData;
-  
-  // Combina income + sales
+
   const chartData = data.map(d => ({
     label: d.label,
     total: d.income + d.sales,
   }));
-  
+
   const total = chartData.reduce((sum, d) => sum + d.total, 0);
-  const fmt = (n: number) => "$" + n.toLocaleString("en-US");
 
   return (
     <div className="bg-white rounded-2xl shadow-md p-4 sm:p-6 w-full">
@@ -63,12 +93,9 @@ export function IncomesChart({ monthlyData, weeklyData }: Props) {
         </div>
       </div>
 
-      {/* Chart + Card: columna en móvil, fila en sm+ */}
+      {/* Chart + Card */}
       <div className="flex flex-col sm:flex-row sm:gap-6 sm:items-start gap-4">
-        <ChartContainer
-          config={chartConfig}
-          className="flex-1 h-64 sm:h-80 w-full"
-        >
+        <ChartContainer config={chartConfig} className="flex-1 h-64 sm:h-80 w-full">
           <BarChart
             data={chartData}
             margin={{ top: 10, right: 4, left: 0, bottom: 0 }}
@@ -81,7 +108,6 @@ export function IncomesChart({ monthlyData, weeklyData }: Props) {
               tick={{ fill: "#6b7280", fontSize: 11 }}
               interval="preserveStartEnd"
             />
-            {/* YAxis oculto en móvil para ganar espacio */}
             <YAxis
               tickLine={false}
               axisLine={false}
@@ -90,7 +116,11 @@ export function IncomesChart({ monthlyData, weeklyData }: Props) {
               width={60}
               className="hidden sm:block"
             />
-            <ChartTooltip content={<ChartTooltipContent />} />
+            <Tooltip
+              content={<CustomTooltip />}
+              wrapperStyle={{ zIndex: 50 }}
+              cursor={{ fill: "#f3f4f6" }}
+            />
             <Bar
               dataKey="total"
               fill="var(--color-total)"
@@ -99,7 +129,7 @@ export function IncomesChart({ monthlyData, weeklyData }: Props) {
           </BarChart>
         </ChartContainer>
 
-        {/* Card: ancho completo en móvil, fijo en sm+ */}
+        {/* Card */}
         <div className="bg-indigo-50 rounded-xl p-4 sm:w-40 sm:shrink-0 flex sm:flex-col items-center sm:items-start justify-between sm:justify-start">
           <p className="text-xs text-gray-500 font-medium">Total Income</p>
           <p className="text-xl font-bold text-gray-900 sm:mt-1">{fmt(total)}</p>

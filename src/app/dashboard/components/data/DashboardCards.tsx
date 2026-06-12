@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { DashboardFilters, Period } from "./DashboardFilters";
 
 export type PeriodData = {
@@ -21,6 +22,7 @@ type Props = {
 
 export function DashboardCards({ today, weekly, monthly }: Props) {
     const [period, setPeriod] = useState<Period>("Today");
+    const router = useRouter();
 
     const data = period === "Today" ? today : period === "Weekly" ? weekly : monthly;
 
@@ -30,7 +32,6 @@ export function DashboardCards({ today, weekly, monthly }: Props) {
         if (pct === null)
             return <span className="text-xs text-gray-400">No prev data</span>;
         
-        // Para diferencia de ventas
         if (isSalesDiff) {
             const positive = pct >= 0;
             return (
@@ -40,7 +41,6 @@ export function DashboardCards({ today, weekly, monthly }: Props) {
             );
         }
         
-        // Para porcentajes
         const positive = inverse ? pct < 0 : pct >= 0;
         return (
             <span className={`text-xs font-medium ${positive ? "text-green-500" : "text-red-500"}`}>
@@ -63,9 +63,11 @@ export function DashboardCards({ today, weekly, monthly }: Props) {
                     <h2 className="font-bold text-2xl text-white mt-1">{fmt(data.totalProfit)}</h2>
                     <p className="text-xs text-slate-400 mt-2 capitalize">{period}</p>
                 </div>
-                
 
-                <div className="bg-white shadow-lg rounded-lg p-4">
+                <div
+                    className="bg-white shadow-lg rounded-lg p-4 cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-xl"
+                    onClick={() => router.push("/incomes")}
+                >
                     <h2 className="font-semibold text-xs text-gray-500">Income</h2>
                     <h2 className="font-bold text-2xl mt-1">{fmt(data.totalIncome)}</h2>
                     <div className="mt-2">
@@ -82,7 +84,10 @@ export function DashboardCards({ today, weekly, monthly }: Props) {
                     </div>
                 </div>
 
-                <div className="bg-white shadow-lg rounded-lg p-4">
+                <div
+                    className="bg-white shadow-lg rounded-lg p-4 cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-xl"
+                    onClick={() => router.push("/expenses")}
+                >
                     <h2 className="font-semibold text-xs text-gray-500">Expenses</h2>
                     <h2 className="font-bold text-2xl mt-1">{fmt(data.totalExpense)}</h2>
                     <div className="mt-2">
@@ -99,7 +104,10 @@ export function DashboardCards({ today, weekly, monthly }: Props) {
                     </div>
                 </div>
 
-                <div className="animated-border shadow-lg p-0">
+                <div
+                    className="animated-border shadow-lg p-0 cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-xl"
+                    onClick={() => router.push("/sales")}
+                >
                     <div className="animated-border-inner p-5">
                         <h2 className="font-semibold text-xs text-gray-500">Sales</h2>
                         <h2 className="font-bold text-2xl mt-1">{data.totalSales}</h2>

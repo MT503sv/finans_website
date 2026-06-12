@@ -48,7 +48,7 @@ function PageHeader({
   showToggle?: boolean
 }) {
   return (
-    <header className="px-4 sm:px-6 md:px-8 py-4 sm:py-5 flex items-center gap-2 sm:gap-3 border-b border-gray-100">
+    <header className="px-4 sm:px-6 md:px-8 py-4 sm:py-5 flex items-center gap-2 sm:gap-3 border-b border-gray-100 shrink-0">
       {showToggle && !sidebarOpen && (
         <button
           onClick={onToggleSidebar}
@@ -84,8 +84,6 @@ function SidebarContent({
   return (
     <div className="w-[280px] flex flex-col h-full">
       <div className="flex justify-between items-center p-4 sm:p-6">
-
-        {/* Fixed: Restored the missing opening tag. Change to <Link> if using Next.js routing */}
         <a
           href="/dashboard"
           className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
@@ -160,7 +158,28 @@ export default function KualiPage() {
   })
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: string } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const chatContainerRef = useRef<HTMLDivElement>(null)
+  const [bottomInset, setBottomInset] = useState(0)
+
+  // Ref apunta solo al div de mensajes, no al contenedor completo
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+
+  // Detecta el espacio de la barra del browser en móvil
+  useEffect(() => {
+    const update = () => {
+      // visualViewport.height vs window.innerHeight = diferencia exacta de la barra del browser
+      if (window.visualViewport) {
+        const diff = window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop
+        setBottomInset(Math.max(diff, 0))
+      }
+    }
+    update()
+    window.visualViewport?.addEventListener('resize', update)
+    window.visualViewport?.addEventListener('scroll', update)
+    return () => {
+      window.visualViewport?.removeEventListener('resize', update)
+      window.visualViewport?.removeEventListener('scroll', update)
+    }
+  }, [])
 
 /* eslint-disable react-hooks/set-state-in-effect */
 useEffect(() => {
@@ -190,9 +209,10 @@ useEffect(() => {
     return () => window.removeEventListener('click', handleClickOutside)
   }, [])
 
+  // Scroll directo sobre el contenedor — no afecta la página entera
   useEffect(() => {
-    if (!chatContainerRef.current) return
-    const el = chatContainerRef.current
+    if (!messagesContainerRef.current) return
+    const el = messagesContainerRef.current
     setTimeout(() => {
       try {
         renderMathInElement(el, {
@@ -205,10 +225,11 @@ useEffect(() => {
           ],
           throwOnError: false
         })
+        // scrollTop sobre el propio div, no sobre window ni document
         el.scrollTop = el.scrollHeight
       } catch { }
     }, 300)
-  }, [messages, showInitial, sidebarOpen, activeChatId, isLoading])
+  }, [messages, isLoading])
 
   function loadChat(chatId: string | null) {
     setActiveChatId(chatId)
@@ -301,7 +322,7 @@ useEffect(() => {
   // ─── Skeleton (SSR) ───────────────────────────────────────────────────────
   if (!mounted) {
     return (
-      <div className="h-screen flex overflow-hidden bg-white">
+      <div className="h-[100dvh] flex overflow-hidden bg-white">
         <aside style={{ width: '280px', minWidth: '280px' }} className="hidden md:flex bg-[#010221] text-white flex-col overflow-hidden shrink-0">
           <div className="w-[280px] flex flex-col h-full">
             <div className="flex justify-between items-center p-6">
@@ -310,7 +331,7 @@ useEffect(() => {
           </div>
         </aside>
         <main className="flex-1 flex flex-col overflow-hidden min-w-0">
-          <header className="px-4 sm:px-6 md:px-8 py-4 sm:py-5 flex items-center gap-2 sm:gap-3 border-b border-gray-100">
+          <header className="px-4 sm:px-6 md:px-8 py-4 sm:py-5 flex items-center gap-2 sm:gap-3 border-b border-gray-100 shrink-0">
             <h1 className="text-2xl font-bold text-[#010221]">Kuali</h1>
           </header>
         </main>
@@ -320,7 +341,7 @@ useEffect(() => {
 
   // ─── Full render ──────────────────────────────────────────────────────────
   return (
-    <div className="h-screen flex overflow-hidden bg-white relative">
+    <div className="h-[100dvh] flex overflow-hidden bg-white relative">
 
       {contextMenu && (
         <div
@@ -383,9 +404,13 @@ useEffect(() => {
           showToggle={true}
         />
 
-        <div ref={chatContainerRef} className="flex-1 flex flex-col overflow-y-auto px-3 sm:px-8 md:px-12 lg:px-20 pb-6 sm:pb-10">
+        {/* Zona de mensajes — ocupa el espacio restante y hace scroll internamente */}
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto px-3 sm:px-8 md:px-12 lg:px-20 pb-4"
+        >
           {showInitial ? (
-            <div className="flex-1 flex flex-col items-center justify-center mb-16 sm:mb-20 px-2">
+            <div className="h-full flex flex-col items-center justify-center mb-16 sm:mb-20 px-2">
               <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-center text-black mb-6 sm:mb-10 tracking-tight leading-tight">
                 Optimize your financial decisions
               </h2>
@@ -447,12 +472,14 @@ useEffect(() => {
                   </div>
                 </div>
               )}
+
             </div>
           )}
         </div>
 
+        {/* Input fijo al fondo — nunca se mueve */}
         {!showInitial && (
-          <div className="px-3 sm:px-6 md:px-8 py-3 sm:py-4 bg-white border-t border-gray-100">
+          <div className="px-3 sm:px-6 md:px-8 py-3 sm:py-4 bg-white border-t border-gray-100 shrink-0" style={{ paddingBottom: `${bottomInset + 12}px` }}>
             <div className="max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2 sm:gap-3 shadow-lg">
               <input
                 type="text"
