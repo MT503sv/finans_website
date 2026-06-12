@@ -296,14 +296,13 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
 
   function openAdd() { setEditingGoal(null); setModalOpen(true); }
   function openEdit(goal: Goal) {
-    if (goal.id < 0) return; // ✅ guard: tempId todavía no existe en DB
+    if (goal.id < 0) return;
     setEditingGoal(goal); setModalOpen(true); setOpenMenu(null);
   }
   function handleClose() { setModalOpen(false); setEditingGoal(null); }
 
   async function handleSave(data: { goal_name: string; due_date: string; target_amount: number }) {
     if (editingGoal) {
-      // Optimistic update
       setGoals(prev => prev.map(g =>
         g.id === editingGoal.id
           ? { ...g, goal_name: data.goal_name, due_date: new Date(data.due_date), target_amount: data.target_amount }
@@ -311,7 +310,6 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
       ));
       await updateGoal(editingGoal.id, data);
     } else {
-      // ✅ Optimistic add con tempId negativo
       const tempId = -Date.now();
       setGoals(prev => [{
         id: tempId,
@@ -321,8 +319,6 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
         is_completed: false,
         date: new Date(),
       }, ...prev]);
-
-      // ✅ Reemplaza el tempId con el ID real devuelto por la DB
       const saved = await addGoal(data);
       if (saved?.id) {
         setGoals(prev => prev.map(g => g.id === tempId ? { ...g, id: saved.id } : g));
@@ -333,27 +329,50 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
   async function handleDelete(id: number) {
     setGoals(prev => prev.filter(g => g.id !== id));
     setOpenMenu(null);
-    if (id < 0) return; // ✅ guard: tempId todavía no existe en DB
+    if (id < 0) return;
     await deleteGoal(id);
   }
 
   async function handleToggle(id: number, current: boolean) {
     setGoals(prev => prev.map(g => g.id === id ? { ...g, is_completed: !current } : g));
-    if (id < 0) return; // ✅ guard: tempId todavía no existe en DB
+    if (id < 0) return;
     await toggleGoal(id, !current);
   }
+
+  const DropdownMenu = ({ goalId, goal }: { goalId: number; goal: Goal }) => (
+    <div className="relative flex justify-center" ref={openMenu === goalId ? menuRef : undefined}>
+      <button onClick={() => setOpenMenu(openMenu === goalId ? null : goalId)}
+        className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+        </svg>
+      </button>
+      {openMenu === goalId && (
+        <div className="absolute z-50 top-full right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden w-32">
+          <button onClick={() => openEdit(goal)}
+            className="w-full text-left px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 font-medium transition-colors flex items-center gap-2 cursor-pointer">
+            <Pencil size={12} /> Edit
+          </button>
+          <button onClick={() => handleDelete(goal.id)}
+            className="w-full text-left px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 font-medium transition-colors flex items-center gap-2 cursor-pointer">
+            <Trash2 size={12} /> Delete
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
+      <div className="flex items-start justify-between mb-6 gap-4">
+        <div className="min-w-0">
           <h1 className="text-xl font-bold text-[#010221] sm:text-2xl">My Goals</h1>
           <p className="text-sm text-gray-500 mt-0.5">Your path to building a stronger business</p>
         </div>
         <button onClick={openAdd}
-          className="flex items-center gap-2 bg-[#010221] hover:bg-[#010221]/90 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors cursor-pointer">
+          className="flex items-center gap-2 bg-[#010221] hover:bg-[#010221]/90 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0">
           <Plus size={15} />
           Add Goal
         </button>
@@ -370,7 +389,9 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
-        <div className="grid grid-cols-[2fr_1fr_1fr_40px] gap-4 px-6 py-3 border-b border-gray-100 bg-gray-50/60">
+
+        {/* Header — solo desktop */}
+        <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_40px] gap-4 px-6 py-3 border-b border-gray-100 bg-gray-50/60">
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Goals</span>
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Target date</span>
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide text-right">Amount</span>
@@ -386,12 +407,12 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
 
         {goals.map((goal, i) => (
           <div key={goal.id}
-            className={`grid grid-cols-[2fr_1fr_1fr_40px] gap-4 px-6 py-4 items-center transition-colors hover:bg-gray-50/50 overflow-visible ${
+            className={`px-4 sm:px-6 py-4 transition-colors hover:bg-gray-50/50 overflow-visible ${
               i !== goals.length - 1 ? "border-b border-gray-100" : ""
             }`}>
 
-            {/* Name + toggle */}
-            <div className="flex items-center gap-3 min-w-0">
+            {/* ── Mobile layout ── */}
+            <div className="flex items-center gap-3 sm:hidden">
               <button onClick={() => handleToggle(goal.id, goal.is_completed)}
                 className="flex-shrink-0 text-gray-300 hover:text-[#010221] transition-colors cursor-pointer">
                 {goal.is_completed
@@ -401,43 +422,49 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
               <div className="w-8 h-8 rounded-lg bg-[#010221] flex items-center justify-center flex-shrink-0">
                 <Target size={14} className="text-white" />
               </div>
-              <span className={`text-sm truncate ${goal.is_completed ? "line-through text-gray-400" : "text-[#010221] font-medium"}`}>
-                {goal.goal_name}
-              </span>
-            </div>
-
-            {/* Date */}
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <CalendarIcon size={13} className="text-gray-400 flex-shrink-0" />
-              <span className={goal.is_completed ? "text-gray-400" : ""}>{formatDate(goal.due_date)}</span>
-            </div>
-
-            {/* Amount */}
-            <div className={`text-right text-sm font-semibold ${goal.is_completed ? "line-through text-gray-400" : "text-[#010221]"}`}>
-              ${(goal.target_amount ?? 0).toLocaleString()}
-            </div>
-
-            {/* Dropdown */}
-            <div className="relative flex justify-center" ref={openMenu === goal.id ? menuRef : undefined}>
-              <button onClick={() => setOpenMenu(openMenu === goal.id ? null : goal.id)}
-                className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer focus:outline-none">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
-                </svg>
-              </button>
-              {openMenu === goal.id && (
-                <div className="absolute z-50 top-full right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden w-32">
-                  <button onClick={() => openEdit(goal)}
-                    className="w-full text-left px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 font-medium transition-colors flex items-center gap-2 cursor-pointer">
-                    <Pencil size={12} /> Edit
-                  </button>
-                  <button onClick={() => handleDelete(goal.id)}
-                    className="w-full text-left px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 font-medium transition-colors flex items-center gap-2 cursor-pointer">
-                    <Trash2 size={12} /> Delete
-                  </button>
+              <div className="flex-1 min-w-0">
+                <span className={`text-sm block truncate ${goal.is_completed ? "line-through text-gray-400" : "text-[#010221] font-medium"}`}>
+                  {goal.goal_name}
+                </span>
+                <div className="flex items-center gap-3 mt-0.5">
+                  <span className="text-xs text-gray-400 flex items-center gap-1">
+                    <CalendarIcon size={11} />
+                    {formatDate(goal.due_date)}
+                  </span>
+                  <span className={`text-xs font-semibold ${goal.is_completed ? "line-through text-gray-400" : "text-[#010221]"}`}>
+                    ${(goal.target_amount ?? 0).toLocaleString()}
+                  </span>
                 </div>
-              )}
+              </div>
+              <DropdownMenu goalId={goal.id} goal={goal} />
             </div>
+
+            {/* ── Desktop layout ── */}
+            <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_40px] gap-4 items-center">
+              <div className="flex items-center gap-3 min-w-0">
+                <button onClick={() => handleToggle(goal.id, goal.is_completed)}
+                  className="flex-shrink-0 text-gray-300 hover:text-[#010221] transition-colors cursor-pointer">
+                  {goal.is_completed
+                    ? <CheckCircle2 size={18} className="text-[#010221]" />
+                    : <Circle size={18} />}
+                </button>
+                <div className="w-8 h-8 rounded-lg bg-[#010221] flex items-center justify-center flex-shrink-0">
+                  <Target size={14} className="text-white" />
+                </div>
+                <span className={`text-sm truncate ${goal.is_completed ? "line-through text-gray-400" : "text-[#010221] font-medium"}`}>
+                  {goal.goal_name}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <CalendarIcon size={13} className="text-gray-400 flex-shrink-0" />
+                <span className={goal.is_completed ? "text-gray-400" : ""}>{formatDate(goal.due_date)}</span>
+              </div>
+              <div className={`text-right text-sm font-semibold ${goal.is_completed ? "line-through text-gray-400" : "text-[#010221]"}`}>
+                ${(goal.target_amount ?? 0).toLocaleString()}
+              </div>
+              <DropdownMenu goalId={goal.id} goal={goal} />
+            </div>
+
           </div>
         ))}
       </div>

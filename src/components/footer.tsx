@@ -31,7 +31,7 @@ export default function Footer() {
 
             {/* About Us */}
             <Link
-              href="/about"
+              href="/about-us"
               className="flex items-center gap-3 group px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors w-full sm:w-auto justify-center sm:justify-start"
             >
               <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-[#010221] transition-colors">
@@ -49,7 +49,7 @@ export default function Footer() {
 
             {/* FAQs */}
             <Link
-              href="/faq"
+              href="/FAQ"
               className="flex items-center gap-3 group px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors w-full sm:w-auto justify-center sm:justify-start"
             >
               <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-[#010221] transition-colors">
@@ -90,7 +90,7 @@ export default function Footer() {
           {/* Social icons */}
           <div className="flex items-center gap-3">
             <Link
-              href="https://instagram.com"
+              href="https://www.instagram.com/finans_sv?igsh=OTNxYmN6NmRiOGtu"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
@@ -101,7 +101,7 @@ export default function Footer() {
               </svg>
             </Link>
             <Link
-              href="https://facebook.com"
+              href="https://www.facebook.com/profile.php?id=61590287177948"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook"
@@ -112,7 +112,7 @@ export default function Footer() {
               </svg>
             </Link>
             <Link
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/in/finans-team-202420262001next?utm_source=share_via&utm_content=profile&utm_medium=member_android"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"

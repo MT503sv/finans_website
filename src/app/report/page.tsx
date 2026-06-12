@@ -50,8 +50,8 @@ export default function ReportsPage() {
   function formatDate(d?: Date): string {
     if (!d) return "";
     const yyyy = d.getFullYear();
-    const mm   = String(d.getMonth() + 1).padStart(2, "0");
-    const dd   = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   }
 
@@ -66,10 +66,10 @@ export default function ReportsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id:     user.id,
+          user_id: user.id,
           report_type: selectedReport,
-          start_date:  formatDate(date.from),
-          end_date:    formatDate(date.to),
+          start_date: formatDate(date.from),
+          end_date: formatDate(date.to),
         }),
       });
 
@@ -142,9 +142,6 @@ export default function ReportsPage() {
         <div className="flex flex-col items-center justify-start pt-4 md:pt-12 flex-1">
 
           <div className="text-center mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#010221]">
-              What report do you want to create?
-            </h2>
             <p className="text-gray-400 text-sm mt-1">
               Choose an option for your report
             </p>
@@ -162,12 +159,12 @@ export default function ReportsPage() {
                       setStep("calendar");
                     }}
                     disabled={!isLoaded || !user}
-                    className={`flex items-center gap-4 px-5 py-4 rounded-2xl border ${r.border} bg-white ${r.hover} transition-all duration-200 cursor-pointer group disabled:opacity-40 disabled:cursor-not-allowed`}
+                    className={`flex items-center gap-3 px-3 py-4 rounded-2xl border ${r.border} bg-white ${r.hover} transition-all duration-200 cursor-pointer group disabled:opacity-40 disabled:cursor-not-allowed`}
                   >
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${r.bg} shrink-0`}>
-                      <Icon size={20} className={r.color} />
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${r.bg} shrink-0`}>
+                      <Icon size={18} className={r.color} />
                     </div>
-                    <span className="text-base font-semibold text-[#010221]">
+                    <span className="text-sm font-semibold text-[#010221] truncate">
                       {r.name}
                     </span>
                   </button>
