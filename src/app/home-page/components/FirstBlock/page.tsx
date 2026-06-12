@@ -2,31 +2,30 @@
 
 import Link from "next/link";
 
-
 export default function FirstBlock() {
   return (
     <div className="relative flex flex-1 font-sans overflow-hidden min-h-[600px] sm:min-h-[700px]">
 
-      {/* BACKGROUND IMAGE */}
+      {/* BACKGROUND VIDEO */}
       <video
         className="absolute inset-0 w-full h-full object-cover z-0"
         autoPlay
         muted
         loop
         playsInline
-        src="/homepage/HP2.mp4" 
+        src="/homepage/HP2.mp4"
       />
 
       {/* DARK OVERLAY */}
-      <div className="absolute inset-0 bg-black/80 z-10" />
+      <div className="absolute inset-0 bg-black/70 z-10" />
 
       {/* CONTENT */}
       <div className="relative z-20 flex flex-col items-center text-center w-full px-4 sm:px-10 md:px-20 lg:px-24 pt-10 sm:pt-20 pb-8 sm:pb-24 justify-center">
 
         {/* HEADING */}
-        <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 max-w-4xl">
+        <div className="text-3xl sm:text-5xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 max-w-4xl">
           <h1 className="text-white">Take care of your money.</h1>
-          <h1 className="text-white">Grow your business.</h1>  
+          <h1 className="text-white">Grow your business.</h1>
         </div>
 
         {/* SUBTEXT */}

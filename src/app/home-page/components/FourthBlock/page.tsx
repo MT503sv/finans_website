@@ -70,14 +70,14 @@ export default function PricingBlock() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
         {plans.map((plan) => (
           <div
             key={plan.label}
             className={`
-              relative rounded-3xl flex flex-col gap-4 shadow-lg w-full
+              relative rounded-3xl flex flex-col gap-3 shadow-lg w-full
               ${plan.dark ? "bg-[#010221]" : "bg-white border border-gray-200"}
-              p-6
+              p-4 sm:p-5
             `}
           >
             {/* Badge */}
@@ -93,7 +93,7 @@ export default function PricingBlock() {
             </div>
 
             {/* Plan name */}
-            <h3 className={`text-3xl sm:text-4xl font-extrabold leading-tight ${plan.dark ? "text-white" : "text-[#010221]"}`}>
+            <h3 className={`text-2xl sm:text-3xl font-extrabold leading-tight ${plan.dark ? "text-white" : "text-[#010221]"}`}>
               {plan.label}
             </h3>
 
@@ -104,7 +104,7 @@ export default function PricingBlock() {
 
             {/* Price */}
             <div>
-              <span className={`text-4xl font-extrabold ${plan.dark ? "text-white" : "text-[#010221]"}`}>
+              <span className={`text-3xl font-extrabold ${plan.dark ? "text-white" : "text-[#010221]"}`}>
                 $ {plan.price}
               </span>
               <span className={`text-xs ml-1 ${plan.dark ? "text-white/50" : "text-gray-400"}`}>

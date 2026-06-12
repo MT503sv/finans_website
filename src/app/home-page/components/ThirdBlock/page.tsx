@@ -109,7 +109,7 @@ export default function ThirdBlock() {
                     Coffee sales are your top income source this week. Consider
                     increasing stock for higher profit.
                   </p>
-                  <button className="flex items-center gap-1 text-sm text-[#010221] font-semibold hover:underline">
+                  <button className="flex items-center cursor-pointer gap-1 text-sm text-[#010221] font-semibold hover:underline">
                     View details
                     <ChevronRight size={14} />
                   </button>
