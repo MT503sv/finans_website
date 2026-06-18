@@ -39,9 +39,9 @@ const items = [
   },
   {
     value: "OCR",
-    trigger: "What is the OCR scaning?",
+    trigger: "What is the OCR scanning?",
     content:
-    "The OCR scaning is a feature that allows you to take a picture of your notes and turns he into digital information."
+    "The OCR scanning is a feature that allows you to take a picture of your notes and turn them into digital information."
   },
   {
     value: "management",
