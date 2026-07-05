@@ -20,7 +20,7 @@ CORS(app, resources={
         "origins": [
             "http://localhost:3000",
             "http://127.0.0.1:3000",
-            "https://finans.up.railway.app",
+            "https://finans-website.onrender.com",
             "https://finanswebsite-production-7320.up.railway.app"
         ]
     }
